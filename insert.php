@@ -4,13 +4,16 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-$host = "localhost";
-$db_name = "db_siling";
-$username = "root";
-$password = "";
+// Mengambil konfigurasi dari Environment Variables Railway (dengan fallback ke localhost untuk pengembangan lokal)
+$host = getenv('MYSQLHOST') ?: 'localhost';
+$db_name = getenv('MYSQLDATABASE') ?: 'db_siling';
+$username = getenv('MYSQLUSER') ?: 'root';
+$password = getenv('MYSQLPASSWORD') ?: '';
+$port = getenv('MYSQLPORT') ?: '3306';
 
 try {
-    $db = new PDO("mysql:host=" . $host . ";dbname=" . $db_name . ";charset=utf8mb4", $username, $password);
+    // Menambahkan parameter port ke PDO agar koneksi Railway berhasil
+    $db = new PDO("mysql:host=" . $host . ";port=" . $port . ";dbname=" . $db_name . ";charset=utf8mb4", $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $exception) {
     echo json_encode(array("result" => "error", "message" => "Koneksi database gagal: " . $exception->getMessage()));
