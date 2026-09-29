@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Lingkup Keluarga Resiko Stunting - Oleh TPK Kabupaten Tangerang</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (Excel Export) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- html2pdf.js (PDF Export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+    .print-area {
+        display: none;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .print-area, .print-area * {
+            visibility: visible;
+        }
+        .print-area {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: #fff;
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+        .print-area table {
+            display: table !important;
+            width: 100% !important;
+            font-size: 7px !important;
+        }
+        .print-area th, .print-area td {
+            display: table-cell !important;
+            word-wrap: break-word;
+            padding: 3px 2px !important;
+        }
+        @page {
+            size: landscape;
+            margin: 8mm 6mm;
+        }
+        body {
+            overscroll-behavior-y: contain;
+        }
+    }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col min-h-screen text-slate-800">
+
+    <!-- HEADER / APPBAR -->
+    <header class="bg-purple-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3 text-center sm:text-left">
+                <div class="bg-white p-1.5 rounded-full text-teal-700 font-bold text-xl w-10 h-10 flex items-center justify-center shadow">
+                    <img src="logo2.png" alt="Logo dppkb Kabupaten Tangerang" style="width: 70px; height: auto; max-height: 80px; display: block; margin: 0 auto;">
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-bold leading-tight">
+                        Sistem Informasi Lingkup Keluarga Resiko Stunting
+                    </h1>
+                    <p class="text-xs text-primary-100">DPPKB Kabupaten Tangerang</p>
+                </div>
+            </div>
+            <div id="navUserArea" class="hidden flex items-center gap-2 text-xs bg-teal-800 px-3 py-1.5 rounded-lg">
+                <span id="userBadge" class="font-semibold text-teal-200">Kader</span>
+                <button onclick="openChangePasswordModal()" class="hover:text-amber-300 ml-2" title="Ganti Password">
+                    <i class="fa-solid fa-key"></i>
+                </button>
+                <button onclick="logout()" class="hover:text-red-300 ml-2 font-bold" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- ================= 1. HALAMAN LOGIN ================= -->
+        <section id="loginPage" class="max-w-md mx-auto my-10 bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200">
+            <div class="text-center mb-6">
+                <div class="w-24 h-24 mx-auto mb-4 bg-sky-100 rounded-full flex items-center justify-center p-3 shadow-sm border-2 border-sky-200">
+                    <img src="logoTPK.png" alt="Logo TPK Kabupaten Tangerang" class="w-16 h-16 object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Lambang_Kabupaten_Tangerang.png';">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">SILING</h2>
+                <p class="text-sm text-gray-500">Sistem Informasi Lingkup Keluarga Resiko Stunting</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Masukkan username" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" required placeholder="Masukkan password" class="w-full px-4 py-2 pr-10 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-teal-600 hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md transition duration-200">
+                    Masuk ke Sistem
+                </button>
+            </form>
+            
+            <div class="mt-6 p-3 bg-slate-50 rounded-lg text-xs text-slate-600 space-y-1 border border-slate-200">
+                <p class="font-bold text-slate-700">Hai..Pejuang Tetap Semangat Ya !!! </p>
+                <p> <b>Kalau Capek Ngopi dulu!!!</b></p>
+            </div>
+        </section>
+
+        <!-- ================= 2. DASHBOARD KADER ================= -->
+        <section id="kaderDashboard" class="hidden space-y-6">
+            
+            <!-- FORMULIR INPUT -->
+            <div id="formContainer" class="hidden bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b border-slate-200">
+                    <div>
+                        <h2 class="text-xl font-bold text-teal-800"><i class="fa-solid fa-file-pen mr-2"></i>Formulir Input Pendampingan TPK</h2>
+                        <p class="text-xs text-slate-500">Isi data lapangan dengan benar dan upload foto kegiatan pendampingan</p>
+                    </div>
+                </div>
+
+                <form id="kaderForm" onsubmit="handleKaderSubmit(event)" novalidate class="space-y-6">
+                    <input type="hidden" id="editIndex" value="-1">
+                    <input type="hidden" id="statusPendampingan" name="Status_Pendampingan" value="Data KRS Baru">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Bagian Form Kecamatan -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan</label>
+                            <select id="kecamatan" class="w-full p-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="">-- Pilih Kecamatan --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Desa / Kelurahan</label>
+                            <select id="desa" class="w-full p-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-teal-500 bg-slate-100" disabled>
+                                <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Sasaran</label>
+                            <select id="jenisSasaran" required onchange="handleSasaranChange()" class="w-full p-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="">-- Pilih Jenis Sasaran --</option>
+                                <option value="catin">Catin (Calon Pengantin)</option>
+                                <option value="bumil">Bumil (Ibu Hamil)</option>
+                                <option value="bupas">Bupas (Ibu Pasca Persalinan)</option>
+                                <option value="baduta">Baduta (Bawah Dua Tahun)</option>
+                                <option value="balita">Balita</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No Tim TPK</label>
+                            <input type="text" id="noTimTPK" required placeholder="Contoh: TPK-01" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kader TPK</label>
+                            <input type="text" id="namaKader" required placeholder="Nama Lengkap Kader" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kepala Keluarga (KK)</label>
+                            <input type="text" id="namaKK" required placeholder="Nama KK" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sasaran</label>
+                            <input type="text" id="namaSasaran" required placeholder="Nama Sasaran" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No NIK Sasaran</label>
+                            <input type="text" id="nikSasaran" maxlength="16" required placeholder="16 digit NIK" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div id="fieldCatinPasangan" class="hidden">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pasangan (Khusus Catin)</label>
+                            <input type="text" id="namaPasangan" placeholder="Nama Pasangan Catin" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Sasaran</label>
+                            <input type="text" id="alamatSasaran" required placeholder="Kampung/RT/RW" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. Handphone (WA)</label>
+                            <input type="tel" id="noHp" required placeholder="08xxxxxxxxxx" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div id="fieldUsiaCatin" class="hidden">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Usia Catin (Tahun)</label>
+                            <input type="number" id="usiaCatin" min="10" max="80" placeholder="Contoh: 18" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div id="fieldTglPernikahan" class="hidden">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Pernikahan Catin</label>
+                            <input type="date" id="tglPernikahan" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div id="fieldCatinTambahan" class="hidden md:col-span-3 bg-sky-50 p-4 rounded-xl border border-sky-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-sky-900 mb-1">Tempat Pemeriksaan Kesehatan Catin</label>
+                                <select id="tempatPemeriksaanCatin" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="-">-- Pilih Tempat Pemeriksaan --</option>
+                                    <option value="Rumah Sakit">Rumah Sakit</option>
+                                    <option value="Puskesmas">Puskesmas</option>
+                                    <option value="Klinik">Klinik</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-sky-900 mb-1">Status Catin Terpapar Rokok</label>
+                                <select id="catinTerpaparRokok" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Tidak">Tidak</option>
+                                    <option value="Ya">Ya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-sky-900 mb-1">Catin Pria Merokok</label>
+                                <select id="catinPriaMerokok" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Tidak">Tidak</option>
+                                    <option value="Ya">Ya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-sky-900 mb-1">Mendapatkan Tablet Darah (TTD)</label>
+                                <select id="catinMendapatTTD" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Tidak">Tidak</option>
+                                    <option value="Ya">Ya</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kadar HB (g/dL)</label>
+                            <input type="number" step="0.1" id="hb" placeholder="Contoh: 11.5" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tinggi Badan (TB cm)</label>
+                            <input type="number" step="0.1" id="tb" placeholder="Contoh: 155" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Berat Badan (BB kg)</label>
+                            <input type="number" step="0.1" id="bb" placeholder="Contoh: 20" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">LiLA (Lingkar Lengan Atas cm)</label>
+                            <input type="number" step="0.1" id="lila" placeholder="Contoh: 22.5" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Status Anemia</label>
+                            <select id="anemia" class="w-full p-2.5 text-sm border rounded-lg">
+                                <option value="Tidak">Tidak Anemia</option>
+                                <option value="Ya">Ya (Anemia)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">TFU (Tinggi Fundus Uteri cm)</label>
+                            <input type="number" step="0.1" id="tfu" placeholder="Optional" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div id="fieldUsiaHamil" class="hidden">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Usia Kehamilan (Minggu)</label>
+                            <input type="number" id="usiaKehamilan" placeholder="Contoh: 12" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+                        <div id="fieldAnakKe" class="hidden">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Anak Ke-</label>
+                            <input type="number" id="anakKe" placeholder="Contoh: 1" class="w-full p-2.5 text-sm border rounded-lg">
+                        </div>
+
+                        <div id="fieldIbuHamilTambahan" class="hidden md:col-span-3 bg-pink-50 p-4 rounded-xl border border-pink-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-pink-900 mb-1">Anak Ke- (Ibu Hamil)</label>
+                                <input type="number" id="bumilAnakKe" min="1" placeholder="Contoh: 2" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-pink-900 mb-1">Memiliki Jaminan Kesehatan</label>
+                                <select id="bumilJaminanKesehatan" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Tidak">Tidak</option>
+                                    <option value="Ya (BPJS PBI/KIS)">Ya (BPJS PBI / KIS)</option>
+                                    <option value="Ya (BPJS Mandiri/Swasta)">Ya (BPJS Mandiri / Swasta)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="fieldBupasTambahan" class="hidden md:col-span-3 bg-purple-50 p-4 rounded-xl border border-purple-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">Tanggal Melahirkan</label>
+                                <input type="date" id="bupasTglMelahirkan" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">Tempat Persalinan</label>
+                                <input type="text" id="bupasTempatPersalinan" placeholder="Contoh: RSUD / Puskesmas / Bidan" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">Bagaimana Proses Persalinan</label>
+                                <select id="bupasProsesPersalinan" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Normal / Spontan">Normal / Spontan</option>
+                                    <option value="Operasi Caesar">Operasi Caesar</option>
+                                    <option value="Tindakan Lain (Vakum/Forceps)">Tindakan Lain (Vakum / Forceps)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">Kondisi Bayi</label>
+                                <select id="bupasKondisiBayi" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Hidup">Hidup</option>
+                                    <option value="Meninggal">Meninggal</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-purple-900 mb-1">Mengalami Komplikasi Masa Nifas</label>
+                                <select id="bupasKomplikasiNifas" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                    <option value="Tidak">Tidak</option>
+                                    <option value="Ya (Pendarahan/Infeksi/Lainnya)">Ya (Pendarahan / Infeksi / Lainnya)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="fieldBadutaBalitaTambahan" class="hidden md:col-span-3 bg-amber-50 p-4 rounded-xl border border-amber-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-amber-900 mb-1">Berat Badan Lahir (gram)</label>
+                                <input type="number" id="bbLahirAnak" placeholder="Contoh: 2900" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-amber-900 mb-1">Tinggi Badan Lahir (cm)</label>
+                                <input type="number" step="0.1" id="tbLahirAnak" placeholder="Contoh: 48" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-amber-900 mb-1">Berat Badan Saat Pengukuran (kg)</label>
+                                <input type="number" step="0.1" id="bbUkurAnak" placeholder="Contoh: 10.5" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-amber-900 mb-1">Tinggi Badan Saat Pengukuran (cm)</label>
+                                <input type="number" step="0.1" id="tbUkurAnak" placeholder="Contoh: 75" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Menerima MBG 3B</label>
+                            <select id="mbg3b" class="w-full p-2.5 text-sm border rounded-lg">
+                                <option value="Tidak">Tidak</option>
+                                <option value="Ya">Ya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">PUS Risiko 4T</label>
+                            <select id="pus4t" class="w-full p-2.5 text-sm border rounded-lg">
+                                <option value="Bukan PUS 4T">Bukan PUS 4T</option>
+                                <option value="Terlalu Muda">Terlalu Muda (&lt;20 th)</option>
+                                <option value="Terlalu Tua">Terlalu Tua (&gt;35 th)</option>
+                                <option value="Terlalu Banyak">Terlalu Banyak (&gt;3 anak)</option>
+                                <option value="Terlalu Dekat">Terlalu Dekat (&lt;2 th)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Alat Kontrasepsi</label>
+                            <select id="kontrasepsi" class="w-full p-2.5 text-sm border rounded-lg">
+                                <option value="Tidak BerKB">Tidak BerKB</option>
+                                <option value="Suntik">Suntik</option>
+                                <option value="Pil">Pil</option>
+                                <option value="Implan">Implan</option>
+                                <option value="IUD">IUD</option>
+                                <option value="MOW/MOP">MOW / MOP</option>
+                                <option value="Kondom">Kondom</option>
+                            </select>
+                        </div>
+
+                        <!-- PARAMETER SURVEI KESEJAHTERAAN TAMBAHAN & KALKULASI DESIL OTOMATIS (DEFAULT KOSONG) -->
+                        <div class="md:col-span-3 bg-indigo-50 p-4 rounded-xl border border-indigo-200 mt-2">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-xs font-bold text-indigo-900"><i class="fa-solid fa-house-chimney-user mr-1"></i> Parameter Survei Kesejahteraan Lengkap &amp; Penentu Desil Otomatis</h3>
+                                <div class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-lg font-bold shadow-sm">
+                                    Hasil Kalkulasi: <span id="displayDesilOtomatis" class="text-amber-300 text-sm">Belum Lengkap</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="desilKeluarga" value="1">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Pendidikan Kepala Keluarga</label>
+                                    <select id="paramPendidikanKK" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Pendidikan KK --</option>
+                                        <option value="tidak_sekolah">Tidak Sekolah / Tidak Tamat SD</option>
+                                        <option value="sd_smp">Tamat SD / SMP Sederajat</option>
+                                        <option value="sma">Tamat SMA / Sederajat</option>
+                                        <option value="perguruan_tinggi">Diploma / Perguruan Tinggi</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Pekerjaan Utama Kepala Keluarga</label>
+                                    <select id="paramPekerjaanKK" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Pekerjaan Utama --</option>
+                                        <option value="tidak_bekerja">Tidak Bekerja / Pengangguran</option>
+                                        <option value="buruh_tani_nelayan">Buruh Tani / Nelayan / Serabutan</option>
+                                        <option value="petani_pedagang_kecil">Petani Pemilik / Pedagang Kecil / Swasta</option>
+                                        <option value="pns_tni_polri_BUMN">PNS / TNI / Polri / BUMN / Pegawai Tetap</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Status Kepemilikan Tempat Tinggal</label>
+                                    <select id="paramKepemilikanRumah" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Status Rumah --</option>
+                                        <option value="milik_sendiri">Milik Sendiri</option>
+                                        <option value="kontrak">Kontrak / Sewa</option>
+                                        <option value="tumpang_karang">Bebas Sewa / Numpang / Lainnya</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Luas Lantai / Bangunan (m2 per orang)</label>
+                                    <select id="paramLuasLantai" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Luas Lantai --</option>
+                                        <option value="kurang_8">&lt; 8 m2 per orang (Sempit)</option>
+                                        <option value="cukup_8_10">8 - 10 m2 per orang</option>
+                                        <option value="lebih_10">&gt; 10 m2 per orang (Luas)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Jenis Dinding Rumah Terluas</label>
+                                    <select id="paramJenisDinding" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Jenis Dinding --</option>
+                                        <option value="tembok_berkualitas">Tembok / Bata Berkualitas / Plasteran</option>
+                                        <option value="kayu_bambu_sedang">Kayu / Bambu Kualitas Sedang</option>
+                                        <option value="bilik_bambu_rusak">Bilik Bambu / Kayu Murah / Rusak</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Jenis Atap Rumah Terluas</label>
+                                    <select id="paramJenisAtap" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Jenis Atap --</option>
+                                        <option value="genteng_keramik_beton">Genteng Keramik / Beton / Seng Bagus</option>
+                                        <option value="asbes_genteng_biasa">Asbes / Genteng Tanah Biasa</option>
+                                        <option value="rumbia_seng_rusak">Ijuk / Rumbia / Seng Rusak / Jerami</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Jenis Lantai Rumah Terluas</label>
+                                    <select id="paramJenisLantai" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Jenis Lantai --</option>
+                                        <option value="keramik_marmer">Keramik / Marmer / Ubin Berkualitas</option>
+                                        <option value="kayu_semen">Semen / Kayu Biasa</option>
+                                        <option value="tanah_bambu">Tanah / Bambu / Kayu Murah</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Sumber Penerangan / Listrik</label>
+                                    <select id="paramSumberListrik" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Sumber Listrik --</option>
+                                        <option value="pln_meteran">PLN Meteran Sendiri</option>
+                                        <option value="pln_bersama">PLN Bersama / Numpang Tetangga</option>
+                                        <option value="bukan_pln">Bukan PLN / Tanpa Listrik</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Bahan Bakar Utama Memasak</label>
+                                    <select id="paramBahanBakar" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Bahan Bakar --</option>
+                                        <option value="lpg_listrik">Gas LPG (3kg / 12kg) / Listrik</option>
+                                        <option value="minyak_tanah">Minyak Tanah / Biogas</option>
+                                        <option value="kayu_bakar">Kayu Bakar / Arang / Sekam</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Kepemilikan Kendaraan (Mobil / Motor)</label>
+                                    <select id="paramAsetKendaraan" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Aset Kendaraan --</option>
+                                        <option value="punya_mobil_motor">Punya Mobil dan/atau Lebih dari 1 Motor</option>
+                                        <option value="punya_1_motor">Punya 1 Motor Saja / Kendaraan Roda 2</option>
+                                        <option value="tidak_punya_kendaraan">Tidak Punya Kendaraan Bermotor</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Punya Tabungan / Simpanan Keuangan</label>
+                                    <select id="paramTabungan" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Status Tabungan --</option>
+                                        <option value="ada_tabungan">Ada (Punya Tabungan Bank / Koperasi)</option>
+                                        <option value="tidak_ada_tabungan">Tidak Punya Tabungan / Simpanan</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Punya Emas / Perhiasan (&gt;= 5 Gram)</label>
+                                    <select id="paramEmasPerhiasan" required onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2 border rounded bg-white">
+                                        <option value="">-- Pilih Status Emas/Perhiasan --</option>
+                                        <option value="ada_emas">Ada Memiliki Emas / Perhiasan</option>
+                                        <option value="tidak_ada_emas">Tidak Punya Emas / Perhiasan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="stresGContainer" class="md:col-span-3 bg-teal-50 p-4 rounded-xl border border-teal-200 mt-4">
+                            <h3 class="text-xs font-bold text-teal-900 mb-3"><i class="fa-solid fa-brain mr-1"></i> Skrining Kesehatan Mental Ibu Hamil (STRES-G)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <label class="block font-semibold mb-1">1. Sering merasa sedih/putus asa?</label>
+                                    <select id="stresG1" class="w-full p-2 border rounded">
+                                        <option value="0">Tidak</option>
+                                        <option value="5">Ya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold mb-1">2. Sering merasa cemas/sulit tidur?</label>
+                                    <select id="stresG2" class="w-full p-2 border rounded">
+                                        <option value="0">Tidak</option>
+                                        <option value="5">Ya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold mb-1">3. Apakah sering Ibu merasa mendapat perhatian, kasih sayang, dan bantuan dari suami/keluarga?</label>
+                                    <select id="stresG3" class="w-full p-2 border rounded">
+                                        <option value="5">Tidak</option>
+                                        <option value="0">Ya</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold mb-1">4. Lelah/kurang energi?</label>
+                                    <select id="stresG4" class="w-full p-2 border rounded">
+                                        <option value="0">Tidak</option>
+                                        <option value="5">Ya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Intervensi Yang Diterima (Bisa Pilih &gt;1)</label>
+                            <div class="flex flex-wrap gap-3 p-2 bg-slate-50 border rounded-lg text-xs">
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="Tidak menerima" class="text-red-600 font-semibold" onchange="triggerKalkulasiDesilOtomatis()"> <span>Tidak menerima</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="Bimbingan perkawinan bagi catin" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Bimbingan Perkawinan (Catin)</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="Rujukan" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Rujukan</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="Bansos" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Bansos</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="KIE" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>KIE</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="EPPGBM" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>EPPGBM</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="PMT" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>PMT</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="intervensiDiterima" value="Genting" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Genting</span></label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sanitasi Jamban</label>
+                            <select id="sanitasiJamban" onchange="triggerKalkulasiDesilOtomatis()" class="w-full p-2.5 text-sm border rounded-lg">
+                                <option value="Jamban Layak">Jamban Layak (Milik Sendiri)</option>
+                                <option value="Jamban Tidak Layak">Jamban Tidak Layak / Numpang / Cemplung</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Intervensi Jamban</label>
+                            <select id="sumberIntervensiJamban" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                <option value="-">-- Pilih Sumber Intervensi --</option>
+                                <option value="Mandiri">Mandiri</option>
+                                <option value="Dana Desa">Dana Desa</option>
+                                <option value="Dana Kecamatan">Dana Kecamatan</option>
+                                <option value="Dinas Perkim">Dinas Perkim</option>
+                                <option value="CSR">CSR</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Air Minum Layak (Bisa Pilih &gt;1)</label>
+                            <div class="flex flex-wrap gap-3 p-2 bg-slate-50 border rounded-lg text-xs">
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="PDAM" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>PDAM</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="Air Minum Kemasan" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Air Kemasan/Isi Ulang</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="Ledeng" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Ledeng</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="Sumur Bor" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Sumur Bor</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="Sumur Terlindung" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span>Sumur Terlindung</span></label>
+                                <label class="flex items-center space-x-1"><input type="checkbox" name="airMinum" value="Tidak Layak" class="rounded" onchange="triggerKalkulasiDesilOtomatis()"> <span class="text-red-600 font-semibold">Tidak Layak (Sungai/Tadah Hujan/sumur tidak Terlindung)</span></label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Intervensi Air Minum</label>
+                            <select id="sumberIntervensiAir" class="w-full p-2.5 text-sm border rounded-lg bg-white">
+                                <option value="-">-- Pilih Sumber Intervensi --</option>
+                                <option value="Mandiri">Mandiri</option>
+                                <option value="Dana Desa">Dana Desa</option>
+                                <option value="Dana Kecamatan">Dana Kecamatan</option>
+                                <option value="Dinas Perkim">Dinas Perkim</option>
+                                <option value="CSR">CSR</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-3 bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <label class="block text-xs font-bold text-amber-900 mb-1">
+                                <i class="fa-solid fa-camera mr-1"></i> Unggah Foto Kegiatan Pendampingan (Wajib Ada Foto)
+                            </label>
+                            <input type="file" id="fotoKegiatan" accept="image/*" capture="environment" onchange="previewFoto(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-600 file:text-white hover:file:bg-amber-700">
+                            
+                            <div id="gpsStatus" class="text-[11px] text-amber-800 mt-2 font-medium">
+                                <i class="fa-solid fa-location-dot mr-1"></i> Lokasi GPS &amp; Waktu: <span id="koordinatText" class="italic">Belum dideteksi (Akan otomatis saat pilih foto)</span>
+                            </div>
+
+                            <p class="text-[10px] text-amber-700 mt-1">*Jika foto tidak diunggah, data akan tertolak secara otomatis oleh sistem.</p>
+                            <div id="fotoPreviewContainer" class="mt-2 hidden">
+                                <img id="fotoPreview" class="h-32 rounded-lg border border-slate-300 object-cover shadow-sm">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit" id="btnSubmitForm" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Data ke Admin &amp; Spreadsheet
+                        </button>
+                        <button type="button" onclick="resetKaderForm()" class="bg-slate-300 hover:bg-slate-400 text-slate-700 font-bold px-5 py-3 rounded-xl">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABEL DATA TERINPUT & FILTER -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Data Pendampingan Terinput (Pemutakhiran)</h3>
+                
+                <div class="mb-5 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                        <div class="md:col-span-3">
+                            <label for="filterKecamatanKader" class="block text-xs font-semibold text-slate-600 mb-1">Filter Kecamatan:</label>
+                            <select id="filterKecamatanKader" class="w-full text-xs p-2 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Semua Kecamatan --</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <label for="filterDesaKader" class="block text-xs font-semibold text-slate-600 mb-1">Filter Desa / Kelurahan:</label>
+                            <select id="filterDesaKader" disabled class="w-full text-xs p-2 bg-slate-100 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:cursor-not-allowed">
+                                <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="filterStatusPendampingan" class="block text-xs font-semibold text-slate-600 mb-1">Status Pendampingan:</label>
+                            <select id="filterStatusPendampingan" class="w-full text-xs p-2 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Semua Status</option>
+                                <option value="Data KRS Baru">Data KRS Baru</option>
+                                <option value="Data KRS Masa Pendampingan">Masa Pendampingan</option>
+                            </select>
+                        </div>
+
+                        
+<td class="p-3 border text-center">
+    <button type="button" onclick="lanjutPendampingan(index)" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-xs font-semibold">
+        Lanjut
+    </button>
+</td>
+                            <button type="button" onclick="downloadExcelDariSpreadsheet()" class="text-xs py-2 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-md transition flex items-center justify-center gap-1 shadow-sm" title="Unduh CSV/Excel">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>
+                            <button type="button" onclick="resetFilterWilayah()" class="text-xs py-2 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-semibold rounded-md transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        
+                    </div>
+                </div>
+
+                <div id="offlineQueueContainer" class="hidden mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-2 text-amber-800">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                        <span>Ada <strong id="queueCount">0</strong> data tertunda yang belum tersinkron.</span>
+                    </div>
+                    <button onclick="retrySyncQueue()" id="btnRetrySync" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+                        <i class="fa-solid fa-rotate"></i> Kirim Ulang Sekarang
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 uppercase">
+                            <tr>
+                                <th class="p-3 border">Tgl</th>
+                                <th class="p-3 border">Sasaran</th>
+                                <th class="p-3 border">Jenis</th>
+                                <th class="p-3 border">Desil</th>
+                                <th class="p-3 border">Kecamatan / Desa</th>
+                                <th class="p-3 border">Status Risiko</th>
+                                <th class="p-3 border">Alasan Risiko</th>
+                                <th class="p-3 border text-center">Status Pendampingan</th>
+                                <th class="p-3 border text-center">Aksi Pendampingan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kaderTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. DASHBOARD ADMIN ================= -->
+        <!-- ================= 3. DASHBOARD ADMIN ================= -->
+        <section id="adminDashboard" class="hidden space-y-6">
+            
+            <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200">
+    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-filter mr-1"></i>Filter Monitoring Pendampingan</h3>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- Filter Tahun yang diperluas -->
+        <select id="filterTahun" onchange="renderAdminDashboard()" class="p-2 text-xs border rounded-lg">
+            <option value="">Semua Tahun</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+        </select>
+
+        <!-- Filter Bulan lengkap dari Januari - Desember -->
+        <select id="filterBulan" onchange="renderAdminDashboard()" class="p-2 text-xs border rounded-lg">
+            <option value="">Semua Bulan</option>
+            <option value="01">Januari</option>
+            <option value="02">Februari</option>
+            <option value="03">Maret</option>
+            <option value="04">April</option>
+            <option value="05">Mei</option>
+            <option value="06">Juni</option>
+            <option value="07">Juli</option>
+            <option value="08">Agustus</option>
+            <option value="09">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+        </select>
+
+        <select id="filterKecamatanAdmin" onchange="updateAdminFilterDesa()" class="p-2 text-xs border rounded-lg"><option value="">Semua Kecamatan</option></select>
+        <select id="filterDesaAdmin" onchange="renderAdminDashboard()" class="p-2 text-xs border rounded-lg"><option value="">Semua Desa / Kelurahan</option></select>
+        <select id="filterTimTPK" onchange="renderAdminDashboard()" class="p-2 text-xs border rounded-lg"><option value="">Semua Tim TPK</option></select>
+    </div>
+</div>
+
+            <div>
+                <h3 class="text-sm font-bold text-slate-700 mb-2 border-l-4 border-teal-600 pl-2">Data Keluarga</h3>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Jumlah Keluarga Target</p>
+                        <p id="indJmlKeluarga" class="text-2xl font-extrabold text-slate-800">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Jumlah Sasaran KRS</p>
+                        <p id="indJmlKRS" class="text-2xl font-extrabold text-amber-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Keluarga Berisiko</p>
+                        <p id="indJmlBeresiko" class="text-2xl font-extrabold text-red-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Keluarga Tidak Berisiko</p>
+                        <p id="indJmlTidakBeresiko" class="text-2xl font-extrabold text-teal-600">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold text-slate-700 mb-2 border-l-4 border-teal-600 pl-2">Data Pendampingan TPK &amp; Capaian</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Kader Aktif</p>
+                        <p id="indJmlKader" class="text-2xl font-extrabold text-indigo-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm bg-blue-50/50">
+                        <p class="text-xs text-slate-500 font-semibold">Didampingi</p>
+                        <p id="indJmlDidampingi" class="text-2xl font-extrabold text-blue-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm bg-rose-50/50">
+                        <p class="text-xs text-slate-500 font-semibold">Belum Didampingi</p>
+                        <p id="indJmlBelumDidampingi" class="text-2xl font-extrabold text-rose-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm bg-emerald-50/50">
+                        <p class="text-xs text-slate-500 font-semibold">% Pendampingan</p>
+                        <p id="indPersenPendampingan" class="text-2xl font-extrabold text-emerald-600">0%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Harus Intervensi</p>
+                        <p id="indJmlHarusIntervensi" class="text-2xl font-extrabold text-orange-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-semibold">Telah Intervensi</p>
+                        <p id="indJmlSudahIntervensi" class="text-2xl font-extrabold text-teal-600">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800 border-b pb-2"><i class="fa-solid fa-list-check mr-2 text-teal-600"></i>1. Indikator Pendampingan Detail</h3>
+                    <div class="text-xs space-y-2">
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Data Baru:</span> <b id="detailDataBaru" class="text-teal-700">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Masa Pendampingan:</span> <b id="detailMasaPendampingan" class="text-purple-700">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Catin:</span> <b id="detailCatin">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Ibu Hamil:</span> <b id="detailBumil">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Bupas:</span> <b id="detailBupas">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jumlah Baduta:</span> <b id="detailBaduta">0</b></div>
+                        <div class="flex justify-between py-1"><span>Jumlah Balita:</span> <b id="detailBalita">0</b></div>
+                    </div>
+                </div>
+
+                <!-- 2. INDIKATOR INTERVENSI DETAIL (BIMWIN & MBG 3B) -->
+                <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800 border-b pb-2"><i class="fa-solid fa-hand-holding-medical mr-2 text-teal-600"></i>2. Indikator Intervensi Detail</h3>
+                    <div class="text-xs space-y-2">
+                        <p class="font-bold text-slate-600 uppercase text-[10px] mt-1">A. Fasilitas Intervensi</p>
+                        <div class="flex justify-between py-1 border-b"><span>Fasilitas Rujukan:</span> <b id="intervensiRujukan">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Fasilitas KIE:</span> <b id="intervensiKIE">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Fasilitas Bansos:</span> <b id="intervensiBansos">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Fasilitas Genting:</span> <b id="intervensiGenting">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Fasilitas PMT:</span> <b id="intervensiPMT">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Bimbingan Perkawinan:</span> <b id="intervensiBimwin">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Menerima MBG 3B:</span> <b id="intervensiMbg3b">0</b></div>
+
+                        <p class="font-bold text-slate-600 uppercase text-[10px] mt-2">B. Sumber Intervensi</p>
+                        <div class="flex justify-between py-1 border-b"><span>Sumber Mandiri:</span> <b id="sumberMandiri">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Sumber Dana Desa:</span> <b id="sumberDanaDesa">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Dana Kecamatan:</span> <b id="sumberDanaKec">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Dinas Perkim:</span> <b id="sumberPerkim">0</b></div>
+                        <div class="flex justify-between py-1"><span>Sumber CSR:</span> <b id="sumberCSR">0</b></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800 border-b pb-2"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i>3. Indikator PUS 4T Detail</h3>
+                    <div class="text-xs space-y-2">
+                        <div class="flex justify-between py-1 border-b"><span>Terlalu Muda (&lt;20 th):</span> <b id="pusTerlaluMuda">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Terlalu Tua (&gt;35 th):</span> <b id="pusTerlaluTua">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Terlalu Banyak (&gt;3 anak):</span> <b id="pusTerlaluBanyak">0</b></div>
+                        <div class="flex justify-between py-1"><span>Terlalu Dekat (&lt;2 th):</span> <b id="pusTerlaluDekat">0</b></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow-md border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4"><i class="fa-solid fa-chart-column mr-2 text-teal-600"></i>Grafik Pencapaian Pendampingan TPK Per-Wilayah</h3>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                        <div style="position: relative; width: 100%; height: 300px;">
+                            <canvas id="chartPendampingan"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800 border-b pb-2"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i>Indikator Berisiko Detail</h3>
+                    <div class="text-xs space-y-2">
+                        <div class="flex justify-between py-1 border-b"><span>ASFR Kawin 15-19 Thn:</span> <b id="indASFR">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Ibu Hamil KEK / LiLA &lt;23.5:</span> <b id="indKEK">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Balita Stunting / LiLA &lt;11.5:</span> <b id="indStunting">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Air Minum Tidak Layak:</span> <b id="indAirBuruk">0</b></div>
+                        <div class="flex justify-between py-1 border-b"><span>Jamban Tidak Layak:</span> <b id="indJambanBuruk">0</b></div>
+                        <div class="flex justify-between py-1 border-b text-emerald-700"><span>Mendapatkan Intervensi:</span> <b id="indIntervensiTotal">0</b></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-sky-50 p-6 rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-table-list mr-2"></i>Daftar Rekapitulasi Hasil Pendampingan TPK</h3>
+                    <div class="flex gap-2">
+                        <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-file-excel"></i> Unduh Excel
+                        </button>
+                        <button onclick="exportToPDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-file-pdf"></i> Cetak PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table id="adminTable" class="w-full text-[11px] text-center border-collapse border border-slate-400 bg-white">
+                        <thead class="bg-teal-700 text-white uppercase text-[10px]">
+                            <tr>
+                                <th rowspan="2" class="border border-slate-300 p-2">Tanggal</th>
+                                <th rowspan="2" class="border border-slate-300 p-2">Wilayah</th>
+                                <th rowspan="2" class="border border-slate-300 p-2">Sasaran KRS</th>
+                                <th rowspan="2" class="border border-slate-300 p-2">KRS Terdampingi</th>
+                                <th rowspan="2" class="border border-slate-300 p-2">KRS Belum Terdampingi</th>
+                                <th colspan="5" class="border border-slate-300 p-1">Jenis Sasaran</th>
+                                <th colspan="10" class="border border-slate-300 p-1">Distribusi Desil Kesejahteraan (1 - 10)</th>
+                                <th rowspan="2" class="border border-slate-300 p-2">Jumlah Berisiko</th>
+                                <th colspan="2" class="border border-slate-300 p-1">Intervensi Air Minum</th>
+                                <th colspan="2" class="border border-slate-300 p-1">Intervensi Jamban</th>
+                                <th colspan="5" class="border border-slate-300 p-1">Sumber Fasilitas Intervensi</th>
+                                <th colspan="7" class="border border-slate-300 p-1">Fasilitas Intervensi</th>
+                                <th colspan="4" class="border border-slate-300 p-1">PUS 4 Terlalu</th>
+                            </tr>
+                            <tr>
+                                <th class="border border-slate-300 p-1">Catin</th>
+                                <th class="border border-slate-300 p-1">Bumil</th>
+                                <th class="border border-slate-300 p-1">Bupas</th>
+                                <th class="border border-slate-300 p-1">Baduta</th>
+                                <th class="border border-slate-300 p-1">Balita</th>
+                                <th class="border border-slate-300 p-1">D.1</th>
+                                <th class="border border-slate-300 p-1">D.2</th>
+                                <th class="border border-slate-300 p-1">D.3</th>
+                                <th class="border border-slate-300 p-1">D.4</th>
+                                <th class="border border-slate-300 p-1">D.5</th>
+                                <th class="border border-slate-300 p-1">D.6</th>
+                                <th class="border border-slate-300 p-1">D.7</th>
+                                <th class="border border-slate-300 p-1">D.8</th>
+                                <th class="border border-slate-300 p-1">D.9</th>
+                                <th class="border border-slate-300 p-1">D.10</th>
+                                <th class="border border-slate-300 p-1">Layak</th>
+                                <th class="border border-slate-300 p-1">Tidak Layak</th>
+                                <th class="border border-slate-300 p-1">Layak</th>
+                                <th class="border border-slate-300 p-1">Tidak Layak</th>
+                                <th class="border border-slate-300 p-1">Mandiri</th>
+                                <th class="border border-slate-300 p-1">Dana Desa</th>
+                                <th class="border border-slate-300 p-1">Dana Kecamatan</th>
+                                <th class="border border-slate-300 p-1">Dinas Perkim</th>
+                                <th class="border border-slate-300 p-1">CSR</th>
+                                <th class="border border-slate-300 p-1">Rujukan</th>
+                                <th class="border border-slate-300 p-1">Bansos</th>
+                                <th class="border border-slate-300 p-1">KIE</th>
+                                <th class="border border-slate-300 p-1">Bimbingan Perkawinan</th>
+                                <th class="border border-slate-300 p-1">PMT</th>
+                                <th class="border border-slate-300 p-1">Genting</th>
+                                <th class="border border-slate-300 p-1">MBG 3B</th>
+                                <th class="border border-slate-300 p-1">Terlalu Muda</th>
+                                <th class="border border-slate-300 p-1">Terlalu Tua</th>
+                                <th class="border border-slate-300 p-1">Terlalu Dekat</th>
+                                <th class="border border-slate-300 p-1">Terlalu Banyak</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <!-- FOOTER -->
+    <footer class="bg-slate-200 border-t border-slate-300 text-slate-600 text-[11px] py-3 px-4 text-center mt-auto font-medium">
+        Hak Cipta @Tim Kerja Ketahanan kesejahteraan keluarga DPPKB Kabupaten Tangerang. Created by Wisnu Nurhuda
+    </footer>
+
+    <!-- MODAL GANTI PASSWORD -->
+    <div id="changePasswordModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 space-y-4">
+            <h3 class="text-base font-bold text-slate-800">Ganti Password</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Password Baru</label>
+                <input type="password" id="newPasswordInput" class="w-full p-2 border rounded-lg text-sm">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeChangePasswordModal()" class="px-4 py-1.5 text-xs bg-slate-200 rounded-lg">Batal</button>
+                <button onclick="saveNewPassword()" class="px-4 py-1.5 text-xs bg-teal-600 text-white font-bold rounded-lg">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELEMEN UNTUK EKSPOR PDF RESMI -->
+    <div id="pdfExportContainer" class="print-area">
+        <table style="width: 100%; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 16px;">
+            <tr>
+                <td style="width: 80px; text-align: center; vertical-align: middle;">
+                    <img src="logo kab tangerang.png" alt="Logo Kabupaten Tangerang" style="width: 90px; height: auto; max-height: 80px; display: block; margin: 0 auto;">
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <h2 style="font-weight: bold; font-size: 13pt; text-transform: uppercase; margin: 0; line-height: 1.2;">Pemerintah Kabupaten Tangerang</h2>
+                    <h3 style="font-weight: bold; font-size: 11pt; text-transform: uppercase; margin: 2px 0; line-height: 1.2;">Dinas Pengendalian Penduduk dan Keluarga Berencana</h3>
+                    <p style="font-size: 9pt; font-style: italic; margin: 2px 0;">Tim Kerja Ketahanan Kesejahteraan Keluarga - DPPKB Kabupaten Tangerang</p>
+                    <p style="font-size: 8pt; margin: 0;">JL. KH. Sarbini No.2 Lt.1 Komplek Perkantoran Tigaraksa</p>
+                </td>
+                <td style="width: 80px;"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ================= JAVASCRIPT SISTEM ================= -->
+    <script>
+    const APPS_SCRIPT_URL = "http://localhost/siling-api/insert.php";
+    const SCRIPT_URL = "http://localhost/siling-api/get_data.php";
+
+    const DATA_WILAYAH = {
+        "Balaraja": ["Cangkudu", "Gembong", "Saga", "Sentul", "Sentul Jaya", "Sukamurni", "Talagasari", "Tobat", "Kelurahan Balaraja"],
+        "Cikupa": ["Bitung Jaya", "Bojong", "Budi Mulya", "Cibadak", "Cikupa", "Dukuh", "Pasir Gadung", "Pasir Jaya", "Sukadamai", "Sukanagara", "Talaga", "Talagasari", "Kelurahan Bunder", "Kelurahan Sukamulya"],
+        "Cisauk": ["Cibogo", "Dangdang", "Mekar Wangi", "Sampora", "Suradita", "Kelurahan Cisauk"],
+        "Cisoka": ["Bojong Loa", "Carenang", "Caringin", "Cempaka", "Cibugel", "Cisoka", "Jeungjing", "Karangharja", "Selapajang", "Sukatani"],
+        "Curug": ["Cukanggalih", "Curug Wetan", "Kadu", "Kadu Jaya", "Kelurahan Binong", "Kelurahan Curug Kulon", "Kelurahan Sukabakti"],
+        "Gunung Kaler": ["Cibetok", "Cipaeh", "Gunung Kaler", "Kandawati", "Kedung", "Onyam", "Rancagede", "Sidoko", "Tamiang"],
+        "Jambe": ["Ancol Pasir", "Daru", "Jambe", "Kutruk", "Mekarsari", "Pasir Barat", "Ranca Buaya", "Sukamanah", "Taban", "Tipar Raya"],
+        "Jayanti": ["Cikande", "Dangdeur", "Jayanti", "Pabuaran", "Pangkat", "Pasir Gintung", "Pasir Muncang", "Sumurbandung"],
+        "Kelapa Dua": ["Curug Sangereng", "Kelurahan Bencongan", "Kelurahan Bencongan Indah", "Kelurahan Bojong Nangka", "Kelurahan Kelapa Dua", "Kelurahan Pakulonan Barat"],
+        "Kemiri": ["Karang Anyar", "Kemiri", "Klebet", "Legok Sukamaju", "Lontar", "Patramanggala", "Ranca Labuh"],
+        "Kresek": ["Jengkol", "Kemuning", "Koper", "Kresek", "Pasir Ampo", "Patrasana", "Rancailat", "Renged", "Talok"],
+        "Kronjo": ["Bakung", "Blukbuk", "Cirumpak", "Kronjo", "Muncung", "Pagedangan Ilir", "Pagedangan Udik", "Pagenjahan", "Pasilian", "Pasir"],
+        "Kosambi": ["Belimbing", "Cengklong", "Jati Mulya", "Kosambi Timur", "Rawa Burung", "Rawa Rengas", "Salembaran Jati", "Kelurahan Dadap", "Kelurahan Kosambi Barat", "Kelurahan Salembaran Jaya"],
+        "Legok": ["Babat", "Bojongkamal", "Caringin", "Ciangir", "Cirarab", "Kemuning", "Legok", "Palasari", "Rancagong", "Serdang Wetan"],
+        "Mauk": ["Banyu Asih", "Gunung Sari", "Jatiwaringin", "Kedung Dalem", "Ketapang", "Marga Mulya", "Mauk Barat", "Sasak", "Tanjung Anom", "Tegal Kunir Kidul", "Tegal Kunir Lor", "Kelurahan Mauk Timur"],
+        "Mekar Baru": ["Cijeruk", "Gandaria", "Jenggot", "Kedaung", "Klutuk", "Kosambi Dalam", "Mekarbaru", "Waliwis"],
+        "Pagedangan": ["Cicalengka", "Cihuni", "Cijantra", "Jatake", "Kadu Sirung", "Karang Tengah", "Lengkong Kulon", "Malang Nengah", "Pagedangan", "Situ Gadung", "Kelurahan Medang"],
+        "Pakuhaji": ["Buaran Bambu", "Buaran Mangga", "Bunisari", "Gaga", "Kalibaru", "Kiara Payung", "Kohod", "Kramat", "Laksana", "Paku Alam", "Rawa Boni", "Sukawali", "Surya Bahari"],
+        "Panongan": ["Ciakar", "Mekar Jaya", "Panongan", "Peusar", "Ranca Iyuh", "Ranca Kalapa", "Serdang Kulon", "Kelurahan Mekar Bakti"],
+        "Pasar Kemis": ["Gelam Jaya", "Pangadegan", "Pasar Kemis", "Suka Asih", "Sukamantri", "Kelurahan Kuta Baru", "Kelurahan Kutabumi", "Kelurahan Kuta Jaya", "Kelurahan Sindangsari"],
+        "Rajeg": ["Daon", "Jambu Karya", "Lembang Sari", "Mekarsari", "Pangarengan", "Rajeg", "Rajeg Mulya", "Ranca Bango", "Sukamanah", "Sukasari", "Tanjakan", "Tanjakan Mekar", "Kelurahan Sukatani"],
+        "Sepatan": ["Karet", "Kayu Agung", "Kayu Bongkok", "Mekar Jaya", "Pisangan Jaya", "Pondok Jaya", "Sarakan", "Kelurahan Sepatan"],
+        "Sepatan Timur": ["Gempol Sari", "Jati Mulya", "Kampung Kelor", "Kedaung Barat", "Lebak Wangi", "Pondok Kelor", "Sangiang", "Tanah Merah"],
+        "Sindang Jaya": ["Badak Anom", "Sindangasih", "Sindang Jaya", "Sindangpanon", "Sindangsono", "Sukaharja", "Wanakerta"],
+        "Solear": ["Cikareo", "Cikasungka", "Cikuya", "Cireundeu", "Munjul", "Pasanggrahan", "Solear"],
+        "Sukadiri": ["Buaran Jati", "Gintung", "Karang Serang", "Kosambi", "Mekar Kondang", "Pekayon", "Rawa Kidang", "Sukadiri"],
+        "Sukamulya": ["Benda", "Bunar", "Buniayu", "Kaliasin", "Kubang", "Merak", "Parahu", "Sukamulya"],
+        "Teluknaga": ["Babakan Asem", "Bojong Renged", "Kampung Besar", "Kampung Melayu Barat", "Kampung Melayu Timur", "Keboncau", "Lemo", "Muara", "Pangkalan", "Tanjung Burung", "Tanjung Pasir", "Tegal Angus", "Teluknaga"],
+        "Tigaraksa": ["Bantar Panjang", "Cileles", "Cisereh", "Margasari", "Matagara", "Pasir Bolang", "Pasir Nangka", "Pematang", "Pete", "Sodong", "Tapos", "Tegalsari", "Kelurahan Kadu Agung", "Kelurahan Tigaraksa"]
+    };
+
+    let appData = JSON.parse(localStorage.getItem('krs_data_store')) || [];
+    let currentUser = null;
+
+    let userCredentials = JSON.parse(localStorage.getItem('krs_users')) || {
+        'admin': 'admin123',
+        'kader': 'kader123',
+        '360301_BALARAJA': 'balaraja123',
+        '360302_JAYANTI': 'jayanti123',
+        '360303_TIGARAKASA': 'tigaraksa123',
+        '360304_JAMBE': 'jambe123',
+        '360305_CISOKA': 'cisoka123',
+        '360306_KRESEK': 'kresek123',
+        '360307_KRONJO': 'kronjo123',
+        '360308_MAUK': 'mauk123',
+        '360309_KEMIRI': 'kemiri123',
+        '360310_SUKADIRI': 'sukadiri123',
+        '360311_RAJEG': 'rajeg123',
+        '360312_PASARKEMIS': 'pasarkemis123',
+        '360313_TELUKNAGA': 'teluknaga123',
+        '360314_KOSAMBI': 'kosambi123',
+        '360315_PAKUHAJI': 'pakuhaji123',
+        '360316_SEPATAN': 'sepatan123',
+        '360317_CURUG': 'curug123',
+        '360318_CIKUPA': 'cikupa123',
+        '360319_PANONGAN': 'panongan123',
+        '360320_LEGOK': 'legok123',
+        '360322_PAGEDANGAN': 'pagedangan123',
+        '360323_CISAUK': 'cisauk123',
+        '360327_SUKAMULYA': 'sukamulya123',
+        '360328_KELAPADUA': 'kelapadua123',
+        '360329_SINDANGJAYA': 'sindangjaya123',
+        '360330_SEPATANTIMUR': 'sepatantimur123',
+        '360331_SOLEAR': 'solear123',
+        '360332_GUNUNGKALER': 'gunungkaler123',
+        '360333_MEKARBARU': 'mekarbaru123'
+    };
+
+    window.onload = function() {
+        initKecamatanDropdown();
+        renderKaderTable();
+        triggerKalkulasiDesilOtomatis();
+
+        // Tarik data awal dari server agar langsung siap
+        muatDataRealtimeSilent();
+
+        const kecElement = document.getElementById('kecamatan');
+        if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
+
+        const filterKecKaderElem = document.getElementById('filterKecamatanKader');
+        if (filterKecKaderElem) filterKecKaderElem.addEventListener('change', updateFilterDesaOptions);
+
+        const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
+        if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
+
+        // Listener Filter Admin (Tahun, Bulan, Desa Admin)
+        const filterThnAdmin = document.getElementById('filterTahun');
+        if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
+
+        const filterBlnAdmin = document.getElementById('filterBulan');
+        if (filterBlnAdmin) filterBlnAdmin.addEventListener('change', renderAdminDashboard);
+
+        const filterDesaAdminElem = document.getElementById('filterDesaAdmin');
+        if (filterDesaAdminElem) filterDesaAdminElem.addEventListener('change', renderAdminDashboard);
+
+        updateQueueUI();
+    };
+
+    function initKecamatanDropdown() {
+        const kecSelect = document.getElementById('kecamatan');
+        const filterKecKader = document.getElementById('filterKecamatanKader');
+        const filterKecAdmin = document.getElementById('filterKecamatanAdmin');
+        
+        if (kecSelect) kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        if (filterKecKader) filterKecKader.innerHTML = '<option value="">Semua Kecamatan</option>';
+        if (filterKecAdmin) filterKecAdmin.innerHTML = '<option value="">Semua Kecamatan</option>';
+
+        Object.keys(DATA_WILAYAH).sort().forEach(kec => {
+            if (kecSelect) kecSelect.innerHTML += `<option value="${kec}">${kec}</option>`;
+            if (filterKecKader) filterKecKader.innerHTML += `<option value="${kec}">${kec}</option>`;
+            if (filterKecAdmin) filterKecAdmin.innerHTML += `<option value="${kec}">${kec}</option>`;
+        });
+    }
+
+    function updateDesaDropdown() {
+        const kec = document.getElementById('kecamatan').value;
+        const desaSelect = document.getElementById('desa');
+        if (!desaSelect) return;
+        
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa / Kelurahan --</option>';
+        
+        if (kec && DATA_WILAYAH[kec]) {
+            desaSelect.disabled = false;
+            desaSelect.classList.remove("bg-slate-100", "disabled:cursor-not-allowed");
+            desaSelect.classList.add("bg-white");
+
+            DATA_WILAYAH[kec].forEach(d => {
+                desaSelect.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        } else {
+            desaSelect.disabled = true;
+            desaSelect.classList.add("bg-slate-100", "disabled:cursor-not-allowed");
+            desaSelect.classList.remove("bg-white");
+        }
+    }
+
+    function updateFilterDesaOptions() {
+        const kecSelect = document.getElementById("filterKecamatanKader");
+        const desaSelect = document.getElementById("filterDesaKader");
+        if (!kecSelect || !desaSelect) return;
+        const selectedKec = kecSelect.value;
+
+        desaSelect.innerHTML = '<option value="">-- Semua Desa --</option>';
+
+        if (selectedKec && DATA_WILAYAH[selectedKec]) {
+            desaSelect.disabled = false;
+            desaSelect.classList.remove("bg-slate-100", "disabled:cursor-not-allowed");
+            desaSelect.classList.add("bg-white");
+
+            DATA_WILAYAH[selectedKec].forEach(function (desa) {
+                let option = document.createElement("option");
+                option.value = desa;
+                option.textContent = desa;
+                desaSelect.appendChild(option);
+            });
+        } else {
+            desaSelect.disabled = true;
+            desaSelect.classList.add("bg-slate-100", "disabled:cursor-not-allowed");
+            desaSelect.classList.remove("bg-white");
+        }
+        filterKaderTable();
+    }
+
+    function updateAdminFilterDesa() {
+        const kec = document.getElementById('filterKecamatanAdmin').value;
+        const filterDesa = document.getElementById('filterDesaAdmin');
+        if (!filterDesa) return;
+        filterDesa.innerHTML = '<option value="">Semua Desa / Kelurahan</option>';
+
+        if(kec && DATA_WILAYAH[kec]) {
+            DATA_WILAYAH[kec].forEach(d => {
+                filterDesa.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+        renderAdminDashboard();
+    }
+
+    function handleSasaranChange() {
+        const jenis = document.getElementById('jenisSasaran').value;
+        
+        document.getElementById('fieldCatinPasangan').classList.toggle('hidden', jenis !== 'catin');
+        document.getElementById('fieldUsiaCatin').classList.toggle('hidden', jenis !== 'catin');
+        document.getElementById('fieldTglPernikahan').classList.toggle('hidden', jenis !== 'catin');
+        document.getElementById('fieldUsiaHamil').classList.toggle('hidden', jenis !== 'bumil');
+        document.getElementById('fieldAnakKe').classList.toggle('hidden', !['bupas', 'baduta', 'balita'].includes(jenis));
+
+        document.getElementById('fieldCatinTambahan').classList.toggle('hidden', jenis !== 'catin');
+        document.getElementById('fieldIbuHamilTambahan').classList.toggle('hidden', jenis !== 'bumil');
+        document.getElementById('fieldBupasTambahan').classList.toggle('hidden', jenis !== 'bupas');
+        document.getElementById('fieldBadutaBalitaTambahan').classList.toggle('hidden', !['baduta', 'balita'].includes(jenis));
+
+        const stresGContainer = document.getElementById('stresGContainer');
+        if (stresGContainer) {
+            if (jenis === 'catin' || jenis === 'baduta' || jenis === 'balita') {
+                stresGContainer.classList.add('hidden');
+            } else {
+                stresGContainer.classList.remove('hidden');
+            }
+        }
+    }
+
+    let gpsLatitude = "";
+    let gpsLongitude = "";
+    let finalProcessedImageBase64 = "";
+
+    function previewFoto(e) {
+        const file = e.target.files[0];
+        const koordinatText = document.getElementById('koordinatText');
+
+        if (file) {
+            if (navigator.geolocation) {
+                koordinatText.innerText = "Mendeteksi lokasi GPS...";
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        gpsLatitude = position.coords.latitude;
+                        gpsLongitude = position.coords.longitude;
+                        koordinatText.innerText = `Lat: ${gpsLatitude.toFixed(6)}, Long: ${gpsLongitude.toFixed(6)}`;
+                        processImageWithWatermark(file);
+                    },
+                    function(error) {
+                        koordinatText.innerText = "GPS Gagal/Nonaktif";
+                        gpsLatitude = "GPS Off";
+                        gpsLongitude = "GPS Off";
+                        processImageWithWatermark(file);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                processImageWithWatermark(file);
+            }
+        }
+    }
+
+    function processImageWithWatermark(file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                finalProcessedImageBase64 = canvas.toDataURL('image/jpeg', 0.80);
+
+                const preview = document.getElementById('fotoPreview');
+                const container = document.getElementById('fotoPreviewContainer');
+                if(preview) preview.src = finalProcessedImageBase64;
+                if(container) container.classList.remove('hidden');
+            }
+            img.src = evt.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+
+    function hitungDesilOtomatisCore() {
+        return 5; 
+    }
+
+    function triggerKalkulasiDesilOtomatis() {
+        let desilVal = hitungDesilOtomatisCore();
+        const hiddenInput = document.getElementById('desilKeluarga');
+        if (hiddenInput) hiddenInput.value = desilVal;
+        const badgeDisplay = document.getElementById('displayDesilOtomatis');
+        if (badgeDisplay) badgeDisplay.innerText = "Desil " + desilVal;
+    }
+
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('loginPassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text'; 
+            eyeIcon.className = "fa-solid fa-eye-slash";
+        } else {
+            passwordInput.type = 'password'; 
+            eyeIcon.className = "fa-solid fa-eye";
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const u = document.getElementById('loginUsername').value.trim().toUpperCase();
+        const p = document.getElementById('loginPassword').value.trim();
+
+        const kaderDash = document.getElementById('kaderDashboard');
+        const adminDash = document.getElementById('adminDashboard');
+
+        if (u === 'ADMIN' && p === userCredentials['admin']) {
+            currentUser = { role: 'admin', name: 'Admin DPPKB' };
+        } else if (userCredentials[u] && userCredentials[u] === p) {
+            currentUser = { role: 'kader', name: 'Kader TPK (' + u + ')' };
+        } else {
+            alert("Username atau Password Salah!");
+            return;
+        }
+
+        localStorage.setItem('activeUserSession', JSON.stringify(currentUser));
+        localStorage.setItem('activeUsername', u);
+
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('navUserArea').classList.remove('hidden');
+        document.getElementById('userBadge').innerText = currentUser.role.toUpperCase() + (currentUser.role === 'kader' ? ' - ' + u : '');
+
+        if (kaderDash) kaderDash.classList.add('hidden');
+        if (adminDash) adminDash.classList.add('hidden');
+
+        // Tarik data terbaru dari database SQL secara langsung saat login
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    appData = data;
+                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                }
+            })
+            .catch(err => console.log("Gagal menarik data SQL saat login:", err))
+            .finally(() => {
+                setTimeout(() => {
+                    if(currentUser.role === 'kader') {
+                        if (kaderDash) kaderDash.classList.remove('hidden');
+                        renderKaderTable();
+                    } else {
+                        if (adminDash) {
+                            adminDash.classList.remove('hidden');
+                            adminDash.style.setProperty('display', 'block', 'important');
+                        }
+                        // Panggil populate dan render setelah appData terisi dari database
+                        populateFilterTahunBulan();
+                        renderAdminDashboard();
+                    }
+                }, 0);
+            });
+    }
+
+    function muatDataRealtimeSilent() {
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    appData = data;
+                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                    renderKaderTable();
+                    populateFilterTahunBulan();
+                    renderAdminDashboard();
+                }
+            })
+            .catch(err => console.log("Background fetch skipped."));
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('activeUserSession');
+        localStorage.removeItem('activeUsername');
+
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('navUserArea').classList.add('hidden');
+        document.getElementById('kaderDashboard').classList.add('hidden');
+        document.getElementById('adminDashboard').classList.add('hidden');
+    }
+
+    function bukaFormTambahBaru() {
+        const formContainer = document.getElementById('formContainer');
+        if (formContainer) formContainer.classList.remove('hidden');
+
+        const formEl = document.getElementById('kaderForm');
+        if (formEl) formEl.reset();
+
+        const desaSelect = document.getElementById('desa');
+        if (desaSelect) {
+            desaSelect.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            desaSelect.disabled = true;
+        }
+
+        const editIndexEl = document.getElementById('editIndex');
+        if (editIndexEl) editIndexEl.value = '-1';
+
+        const statusPendampinganInput = document.getElementById('statusPendampingan');
+        if (statusPendampinganInput) statusPendampinganInput.value = "Data KRS Baru";
+
+        finalProcessedImageBase64 = "";
+        const previewContainer = document.getElementById('fotoPreviewContainer');
+        if (previewContainer) previewContainer.classList.add('hidden');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetKaderForm() {
+        const formContainer = document.getElementById('formContainer');
+        if (formContainer) formContainer.classList.add('hidden');
+    }
+
+    function handleKaderSubmit(e) {
+        e.preventDefault();
+        const nikSasaran = document.getElementById('nikSasaran').value;
+
+        if (!nikSasaran || nikSasaran.length !== 16) {
+            alert("NIK Sasaran wajib 16 digit angka.");
+            return;
+        }
+
+        const dataObj = {
+            id: Date.now(),
+            Timestamp: new Date().toISOString().split('T')[0],
+            Kecamatan: document.getElementById('kecamatan') ? document.getElementById('kecamatan').value : '',
+            Desa: document.getElementById('desa') ? document.getElementById('desa').value : '',
+            Jenis_Sasaran: document.getElementById('jenisSasaran') ? document.getElementById('jenisSasaran').value : '',
+            Desil: document.getElementById('desilKeluarga') ? document.getElementById('desilKeluarga').value : '1',
+            Pendidikan_KK: document.getElementById('paramPendidikanKK') ? document.getElementById('paramPendidikanKK').value : '',
+            Pekerjaan_KK: document.getElementById('paramPekerjaanKK') ? document.getElementById('paramPekerjaanKK').value : '',
+            Kepemilikan_Rumah: document.getElementById('paramKepemilikanRumah') ? document.getElementById('paramKepemilikanRumah').value : '',
+            Luas_Lantai: document.getElementById('paramLuasLantai') ? document.getElementById('paramLuasLantai').value : '',
+            Jenis_Dinding: document.getElementById('paramJenisDinding') ? document.getElementById('paramJenisDinding').value : '',
+            Jenis_Atap: document.getElementById('paramJenisAtap') ? document.getElementById('paramJenisAtap').value : '',
+            Jenis_Lantai: document.getElementById('paramJenisLantai') ? document.getElementById('paramJenisLantai').value : '',
+            Sumber_Listrik: document.getElementById('paramSumberListrik') ? document.getElementById('paramSumberListrik').value : '',
+            Bahan_Bakar: document.getElementById('paramBahanBakar') ? document.getElementById('paramBahanBakar').value : '',
+            Aset_Kendaraan: document.getElementById('paramAsetKendaraan') ? document.getElementById('paramAsetKendaraan').value : '',
+            Tabungan: document.getElementById('paramTabungan') ? document.getElementById('paramTabungan').value : '',
+            Emas_Perhiasan: document.getElementById('paramEmasPerhiasan') ? document.getElementById('paramEmasPerhiasan').value : '',
+            No_TPK: document.getElementById('noTimTPK') ? document.getElementById('noTimTPK').value : '',
+            Nama_Kader: document.getElementById('namaKader') ? document.getElementById('namaKader').value : '',
+            Nama_KK: document.getElementById('namaKK') ? document.getElementById('namaKK').value : '',
+            Nama_Sasaran: document.getElementById('namaSasaran') ? document.getElementById('namaSasaran').value : '',
+            Nik_Sasaran: nikSasaran,
+            No_Handphone: document.getElementById('noHp') ? document.getElementById('noHp').value : '',
+            Alamat: document.getElementById('alamatSasaran') ? document.getElementById('alamatSasaran').value : '',
+            Hb: document.getElementById('inputHb') ? document.getElementById('inputHb').value : 0,
+            Tb: document.getElementById('inputTb') ? document.getElementById('inputTb').value : 0,
+            Bb_Lahir: document.getElementById('inputBbLahir') ? document.getElementById('inputBbLahir').value : 0,
+            Lila: document.getElementById('inputLila') ? document.getElementById('inputLila').value : 0,
+            Anemia: document.getElementById('inputAnemia') ? document.getElementById('inputAnemia').value : '',
+            Tfu: document.getElementById('inputTfu') ? document.getElementById('inputTfu').value : 0,
+            Lingkar_Kepala: document.getElementById('inputLingkarKepala') ? document.getElementById('inputLingkarKepala').value : 0,
+            Usia_Hamil: document.getElementById('inputUsiaHamil') ? document.getElementById('inputUsiaHamil').value : 0,
+            Anak_Ke: document.getElementById('inputAnakKe') ? document.getElementById('inputAnakKe').value : 0,
+            Mbg_3b: document.getElementById('inputMbg3b') ? document.getElementById('inputMbg3b').value : '',
+            Pus_4t: document.getElementById('inputPus4t') ? document.getElementById('inputPus4t').value : '',
+            Alat_Kontrasepsi: document.getElementById('inputKontrasepsi') ? document.getElementById('inputKontrasepsi').value : '',
+            Intervensi: document.getElementById('inputIntervensi') ? document.getElementById('inputIntervensi').value : '',
+            Air_Minum: document.getElementById('inputAirMinum') ? document.getElementById('inputAirMinum').value : '',
+            Sumber_Intervensi_Air: document.getElementById('sumberAir') ? document.getElementById('sumberAir').value : '',
+            Sanitasi: document.getElementById('inputSanitasi') ? document.getElementById('inputSanitasi').value : '',
+            Sumber_Intervensi_Jamban: document.getElementById('sumberJamban') ? document.getElementById('sumberJamban').value : '',
+            Foto: finalProcessedImageBase64,
+            Lokasi_Gps: `${gpsLatitude}, ${gpsLongitude}`,
+            Status_Risiko: "TIDAK BERISIKO",
+            Alasan_Risiko: "Parameter Aman",
+            Status_Pendampingan: document.getElementById('statusPendampingan') ? document.getElementById('statusPendampingan').value : "Data KRS Baru",
+            Skor_S1: document.getElementById('skorS1') ? document.getElementById('skorS1').value : 0,
+            Skor_S2: document.getElementById('skorS2') ? document.getElementById('skorS2').value : 0,
+            Skor_S3: document.getElementById('skorS3') ? document.getElementById('skorS3').value : 0,
+            Skor_S4: document.getElementById('skorS4') ? document.getElementById('skorS4').value : 0,
+            Total_Skor_Mental: document.getElementById('totalSkorMental') ? document.getElementById('totalSkorMental').value : 0,
+            Status_Mental: document.getElementById('statusMental') ? document.getElementById('statusMental').value : ''
+        };
+
+        appData.unshift(dataObj);
+        localStorage.setItem('krs_data_store', JSON.stringify(appData));
+        
+        renderKaderTable();
+        resetKaderForm();
+        alert("Data berhasil disimpan secara lokal dan diperbarui!");
+
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataObj)
+        }).catch(err => console.log("Background sync error:", err));
+    }
+
+    function muatDataRealtimeSilent() {
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    appData = data;
+                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                    renderKaderTable();
+                    populateFilterTahunBulan();
+                    renderAdminDashboard();
+                }
+            })
+            .catch(err => console.log("Background fetch skipped."));
+    }
+
+    function renderKaderTable() {
+        const tbody = document.getElementById('kaderTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (appData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400 italic">Belum ada data pendampingan.</td></tr>`;
+            return;
+        }
+
+        const slicedData = appData.slice(0, 30);
+
+        slicedData.forEach((item, index) => {
+            let tgl = (item.Timestamp || item.timestamp || item.tglInput || '-').split('T')[0];
+            let nama = item.Nama_Sasaran || item.nama_sasaran || '-';
+            let jenis = (item.Jenis_Sasaran || item.jenis_sasaran || '-').toUpperCase();
+            let desilVal = item.Desil || item.desil || '1';
+            let wilayah = (item.Kecamatan || item.kecamatan || '-') + ' / ' + (item.Desa || item.desa || '-');
+            let status = item.Status_Risiko || item.status_risiko || 'TIDAK BERISIKO';
+            let alasan = item.Alasan_Risiko || item.alasan_risiko || '-';
+            let statusPendampingan = item.Status_Pendampingan || item.status_pendampingan || 'Data KRS Baru';
+            let badgeClass = String(statusPendampingan).includes('Masa') ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
+
+            tbody.innerHTML += `
+                <tr class="border-b hover:bg-slate-50 transition-colors">
+                    <td class="p-3 border text-xs text-slate-600">${tgl}</td>
+                    <td class="p-3 border font-semibold text-slate-800">${nama}</td>
+                    <td class="p-3 border uppercase text-xs font-medium text-slate-700">${jenis}</td>
+                    <td class="p-3 border text-center font-bold text-teal-700">D.${desilVal}</td>
+                    <td class="p-3 border text-xs text-slate-600">${wilayah}</td>
+                    <td class="p-3 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-700">${status}</span></td>
+                    <td class="p-3 border text-xs text-slate-500">${alasan}</td>
+                    <td class="p-3 border text-center">
+                        <span class="px-2 py-1 rounded text-[10px] font-bold ${badgeClass} inline-block">
+                            ${statusPendampingan}
+                        </span>
+                    </td>
+                    <td class="p-3 border text-center">
+                        <button type="button" onclick="lanjutPendampingan(${index})" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                            Lanjut
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function populateFilterTahunBulan() {
+        const filterTahun = document.getElementById('filterTahun');
+        const filterBulan = document.getElementById('filterBulan');
+        if (!filterTahun || !filterBulan) return;
+
+        let setTahun = new Set();
+        let setBulan = new Set();
+
+        appData.forEach(item => {
+            let tgl = item.Timestamp || item.timestamp || item.tglInput || '';
+            if (tgl) {
+                let parts = tgl.split('T')[0].split('-');
+                if (parts.length >= 1 && parts[0].length === 4) setTahun.add(parts[0]);
+                if (parts.length >= 2) setBulan.add(parts[1]);
+            }
+        });
+
+        let sortedTahun = Array.from(setTahun).sort().reverse();
+        filterTahun.innerHTML = '<option value="">Semua Tahun</option>';
+        sortedTahun.forEach(thn => {
+            filterTahun.innerHTML += `<option value="${thn}">${thn}</option>`;
+        });
+
+        const namaBulan = {
+            "01": "Januari", "02": "Februari", "03": "Maret", "04": "April",
+            "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus",
+            "09": "September", "10": "Oktober", "11": "November", "12": "Desember"
+        };
+
+        let sortedBulan = Array.from(setBulan).sort();
+        filterBulan.innerHTML = '<option value="">Semua Bulan</option>';
+        sortedBulan.forEach(bln => {
+            if (namaBulan[bln]) {
+                filterBulan.innerHTML += `<option value="${bln}">${namaBulan[bln]}</option>`;
+            }
+        });
+    }
+
+    function renderAdminDashboard() {
+        if (!Array.isArray(appData) || appData.length === 0) {
+            console.log("appData masih kosong di dashboard admin.");
+            return;
+        }
+
+        const fTahun = document.getElementById('filterTahun') ? document.getElementById('filterTahun').value : '';
+        const fBulan = document.getElementById('filterBulan') ? document.getElementById('filterBulan').value : '';
+        const fKec = document.getElementById('filterKecamatanAdmin') ? document.getElementById('filterKecamatanAdmin').value : '';
+        const fDesa = document.getElementById('filterDesaAdmin') ? document.getElementById('filterDesaAdmin').value : '';
+
+        const filtered = appData.filter(item => {
+            // Ambil tanggal dari berbagai kemungkinan nama properti (kecil/besar)
+            let tgl = item.timestamp || item.Timestamp || item.tglInput || item.tanggal || '';
+            let itemTahun = tgl.substring(0, 4);
+            let itemBulan = tgl.substring(5, 7);
+            
+            let kec = item.kecamatan || item.Kecamatan || '';
+            let desa = item.desa || item.Desa || '';
+
+            let matchTahun = (!fTahun || itemTahun === fTahun);
+            let matchBulan = (!fBulan || itemBulan === fBulan);
+            let matchKec = (!fKec || fKec === 'semua' || kec.toLowerCase() === fKec.toLowerCase());
+            let matchDesa = (!fDesa || fDesa === 'semua' || desa.toLowerCase() === fDesa.toLowerCase());
+
+            return matchTahun && matchBulan && matchKec && matchDesa;
+        });
+
+        let totalKeluarga = filtered.length;
+
+        let berisikoTotal = filtered.filter(i => {
+            let statusResiko = i.status_risiko || i.Status_Risiko || i.statusResiko || '';
+            return statusResiko.toUpperCase() === 'BERISIKO';
+        }).length;
+
+        let tidakBerisikoTotal = totalKeluarga - berisikoTotal;
+
+        // Update teks indikator ke elemen HTML Dashboard Admin
+        if(document.getElementById('indJmlKeluarga')) document.getElementById('indJmlKeluarga').innerText = totalKeluarga.toLocaleString('id-ID');
+        if(document.getElementById('indJmlKRS')) document.getElementById('indJmlKRS').innerText = totalKeluarga.toLocaleString('id-ID');
+        if(document.getElementById('indJmlBeresiko')) document.getElementById('indJmlBeresiko').innerText = berisikoTotal.toLocaleString('id-ID');
+        if(document.getElementById('indJmlTidakBeresiko')) document.getElementById('indJmlTidakBeresiko').innerText = tidakBerisikoTotal.toLocaleString('id-ID');
+
+        if(document.getElementById('indJmlDidampingi')) document.getElementById('indJmlDidampingi').innerText = totalKeluarga.toLocaleString('id-ID');
+        if(document.getElementById('indJmlBelumDidampingi')) document.getElementById('indJmlBelumDidampingi').innerText = "0";
+
+        let persentasePendampingan = totalKeluarga > 0 ? "100%" : "0%";
+        if(document.getElementById('indPersenPendampingan')) document.getElementById('indPersenPendampingan').innerText = persentasePendampingan;
+
+        // Hitung detail sasaran
+        let jmlDataBaru = filtered.filter(i => {
+            let statusP = i.status_pendampingan || i.Status_Pendampingan || '';
+            return statusP.toLowerCase().includes('baru');
+        }).length;
+
+        let jmlMasaPendampingan = filtered.filter(i => {
+            let statusP = i.status_pendampingan || i.Status_Pendampingan || '';
+            return statusP.toLowerCase().includes('lanjutan') || statusP.toLowerCase().includes('masa');
+        }).length;
+
+        let jmlCatin = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'catin').length;
+        let jmlBumil = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'bumil').length;
+        let jmlBupas = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'bupas').length;
+        let jmlBaduta = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'baduta').length;
+        let jmlBalita = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'balita').length;
+
+        if(document.getElementById('detDataBaru')) document.getElementById('detDataBaru').innerText = jmlDataBaru;
+        if(document.getElementById('detMasaPendampingan')) document.getElementById('detMasaPendampingan').innerText = jmlMasaPendampingan;
+        if(document.getElementById('detCatin')) document.getElementById('detCatin').innerText = jmlCatin;
+        if(document.getElementById('detBumil')) document.getElementById('detBumil').innerText = jmlBumil;
+        if(document.getElementById('detBupas')) document.getElementById('detBupas').innerText = jmlBupas;
+        if(document.getElementById('detBaduta')) document.getElementById('detBaduta').innerText = jmlBaduta;
+    }
+
+    function updateQueueUI() {
+        let queue = JSON.parse(localStorage.getItem('siling_offline_queue')) || [];
+        const container = document.getElementById('offlineQueueContainer');
+        const countBadge = document.getElementById('queueCount');
+        if (queue.length > 0 && container) {
+            container.classList.remove('hidden');
+            if (countBadge) countBadge.innerText = queue.length;
+        } else if (container) {
+            container.classList.add('hidden');
+        }
+    }
+
+    function lanjutPendampingan(index) {
+        const item = appData[index];
+        if (!item) return;
+
+        bukaFormTambahBaru();
+
+        const statusPendampinganInput = document.getElementById('statusPendampingan');
+        if (statusPendampinganInput) statusPendampinganInput.value = "Masa Pendampingan Lanjutan";
+
+        if(document.getElementById('namaSasaran')) document.getElementById('namaSasaran').value = item.Nama_Sasaran || item.nama_sasaran || '';
+        if(document.getElementById('nikSasaran')) document.getElementById('nikSasaran').value = item.Nik_Sasaran || item.nik_sasaran || '';
+        if(document.getElementById('namaKK')) document.getElementById('namaKK').value = item.Nama_KK || item.nama_kk || '';
+        if(document.getElementById('kecamatan')) {
+            document.getElementById('kecamatan').value = item.Kecamatan || item.kecamatan || '';
+            updateDesaDropdown();
+            setTimeout(() => {
+                if(document.getElementById('desa')) document.getElementById('desa').value = item.Desa || item.desa || '';
+            }, 100);
+        }
+        if(document.getElementById('jenisSasaran')) document.getElementById('jenisSasaran').value = item.Jenis_Sasaran || item.jenis_sasaran || '';
+
+        handleSasaranChange();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+   function muatDataRealtimeSilent() {
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    appData = data;
+                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                    renderKaderTable();
+                    populateFilterTahunBulan();
+                    renderAdminDashboard(); // <-- Pastikan baris ini ada di sini!
+                }
+            })
+            .catch(err => console.log("Background fetch skipped."));
+    }
+</script>
+</body>
+</html>
