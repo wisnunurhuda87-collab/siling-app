@@ -989,7 +989,7 @@
 
     <!-- ================= JAVASCRIPT SISTEM ================= -->
     <script>
-   const APPS_SCRIPT_URL = "https://siling-app-production.up.railway.app/insert.php";
+    const APPS_SCRIPT_URL = "https://siling-app-production.up.railway.app/insert.php";
     const SCRIPT_URL = "https://siling-app-production.up.railway.app/get_data.php";
 
     const DATA_WILAYAH = {
@@ -1061,63 +1061,60 @@
         '360333_MEKARBARU': 'mekarbaru123'
     };
 
-   window.onload = function() {
-    // 1. Wajib dipasang paling atas: Pulihkan sesi login agar tidak terlempar ke halaman login
-    let savedSession = localStorage.getItem('activeUserSession');
-    if (savedSession) {
-        currentUser = JSON.parse(savedSession);
-        
-        // Sembunyikan halaman login, langsung buka dashboard
-        const loginPage = document.getElementById('loginPage');
-        const navUserArea = document.getElementById('navUserArea');
-        const userBadge = document.getElementById('userBadge');
-        const kaderDash = document.getElementById('kaderDashboard');
-        const adminDash = document.getElementById('adminDashboard');
+    window.onload = function() {
+        let savedSession = localStorage.getItem('activeUserSession');
+        if (savedSession) {
+            currentUser = JSON.parse(savedSession);
+            
+            const loginPage = document.getElementById('loginPage');
+            const navUserArea = document.getElementById('navUserArea');
+            const userBadge = document.getElementById('userBadge');
+            const kaderDash = document.getElementById('kaderDashboard');
+            const adminDash = document.getElementById('adminDashboard');
 
-        if (loginPage) loginPage.classList.add('hidden');
-        if (navUserArea) navUserArea.classList.remove('hidden');
-        if (userBadge) {
-            userBadge.innerText = currentUser.role.toUpperCase() + (currentUser.role === 'kader' ? ' - ' + localStorage.getItem('activeUsername') : '');
-        }
+            if (loginPage) loginPage.classList.add('hidden');
+            if (navUserArea) navUserArea.classList.remove('hidden');
+            if (userBadge) {
+                userBadge.innerText = currentUser.role.toUpperCase() + (currentUser.role === 'kader' ? ' - ' + localStorage.getItem('activeUsername') : '');
+            }
 
-        if (currentUser.role === 'kader') {
-            if (kaderDash) kaderDash.classList.remove('hidden');
-        } else {
-            if (adminDash) {
-                adminDash.classList.add('hidden');
-                adminDash.style.setProperty('display', 'block', 'important');
-                populateFilterTahunBulan();
-                renderAdminDashboard();
+            if (currentUser.role === 'kader') {
+                if (kaderDash) kaderDash.classList.remove('hidden');
+            } else {
+                if (adminDash) {
+                    adminDash.classList.add('hidden');
+                    adminDash.style.setProperty('display', 'block', 'important');
+                    populateFilterTahunBulan();
+                    renderAdminDashboard();
+                }
             }
         }
-    }
 
-    // 2. Fungsi pendukung lainnya
-    initKecamatanDropdown();
-    renderKaderTable();
-    triggerKalkulasiDesilOtomatis();
-    muatDataRealtimeSilent();
+        initKecamatanDropdown();
+        renderKaderTable();
+        triggerKalkulasiDesilOtomatis();
+        muatDataRealtimeSilent();
 
-    const kecElement = document.getElementById('kecamatan');
-    if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
+        const kecElement = document.getElementById('kecamatan');
+        if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
 
-    const filterKecKaderElem = document.getElementById('filterKecamatanKader');
-    if (filterKecKaderElem) filterKecKaderElem.addEventListener('change', updateFilterDesaOptions);
+        const filterKecKaderElem = document.getElementById('filterKecamatanKader');
+        if (filterKecKaderElem) filterKecKaderElem.addEventListener('change', updateFilterDesaOptions);
 
-    const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
-    if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
+        const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
+        if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
 
-    const filterThnAdmin = document.getElementById('filterTahun');
-    if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
+        const filterThnAdmin = document.getElementById('filterTahun');
+        if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
 
-    const filterBlnAdmin = document.getElementById('filterBulan');
-    if (filterBlnAdmin) filterBlnAdmin.addEventListener('change', renderAdminDashboard);
+        const filterBlnAdmin = document.getElementById('filterBulan');
+        if (filterBlnAdmin) filterBlnAdmin.addEventListener('change', renderAdminDashboard);
 
-    const filterDesaAdminElem = document.getElementById('filterDesaAdmin');
-    if (filterDesaAdminElem) filterDesaAdminElem.addEventListener('change', renderAdminDashboard);
+        const filterDesaAdminElem = document.getElementById('filterDesaAdmin');
+        if (filterDesaAdminElem) filterDesaAdminElem.addEventListener('change', renderAdminDashboard);
 
-    updateQueueUI();
-};
+        updateQueueUI();
+    };
 
     function initKecamatanDropdown() {
         const kecSelect = document.getElementById('kecamatan');
@@ -1403,141 +1400,106 @@
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-const formEl = document.getElementById('formInputData');
-if (formEl) {
-    formEl.addEventListener('submit', function(e) {
-        e.preventDefault(); // Wajib untuk mencegah reload/pindah halaman otomatis
 
-        const nikSasaran = document.getElementById('nikSasaran').value;
-        if (!nikSasaran || nikSasaran.length !== 16) {
-            alert("NIK Sasaran wajib 16 digit angka.");
-            return;
-        }
-
-        // Kumpulkan data objek ...
-        let dataObj = { /* ... data form ... */ };
-
-        // Kirim ke Railway menggunakan fetch
-        fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataObj)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'success' || data.result === 'success') {
-                alert('Data berhasil disimpan ke database!');
-                appData.unshift(dataObj);
-                localStorage.setItem('krs_data_store', JSON.stringify(appData));
-                renderKaderTable();
-                resetKaderForm(); // Sembunyikan form dan kembali ke tabel secara terkontrol
-                muatDataRealtimeSilent();
-            } else {
-                alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan koneksi ke server Railway.');
-        });
-    });
-}
     function resetKaderForm() {
         const formContainer = document.getElementById('formContainer');
         if (formContainer) formContainer.classList.add('hidden');
     }
 
-    // Penanganan Submit Form Langsung ke Database Railway (JSON)
-    document.getElementById('formInputData').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const nikSasaran = document.getElementById('nikSasaran').value;
-        if (!nikSasaran || nikSasaran.length !== 16) {
-            alert("NIK Sasaran wajib 16 digit angka.");
-            return;
-        }
-
-        const dataObj = {
-            id: Date.now(),
-            Timestamp: new Date().toISOString().split('T')[0],
-            Kecamatan: document.getElementById('kecamatan') ? document.getElementById('kecamatan').value : '',
-            Desa: document.getElementById('desa') ? document.getElementById('desa').value : '',
-            Jenis_Sasaran: document.getElementById('jenisSasaran') ? document.getElementById('jenisSasaran').value : '',
-            Desil: document.getElementById('desilKeluarga') ? document.getElementById('desilKeluarga').value : '1',
-            Pendidikan_KK: document.getElementById('paramPendidikanKK') ? document.getElementById('paramPendidikanKK').value : '',
-            Pekerjaan_KK: document.getElementById('paramPekerjaanKK') ? document.getElementById('paramPekerjaanKK').value : '',
-            Kepemilikan_Rumah: document.getElementById('paramKepemilikanRumah') ? document.getElementById('paramKepemilikanRumah').value : '',
-            Luas_Lantai: document.getElementById('paramLuasLantai') ? document.getElementById('paramLuasLantai').value : '',
-            Jenis_Dinding: document.getElementById('paramJenisDinding') ? document.getElementById('paramJenisDinding').value : '',
-            Jenis_Atap: document.getElementById('paramJenisAtap') ? document.getElementById('paramJenisAtap').value : '',
-            Jenis_Lantai: document.getElementById('paramJenisLantai') ? document.getElementById('paramJenisLantai').value : '',
-            Sumber_Listrik: document.getElementById('paramSumberListrik') ? document.getElementById('paramSumberListrik').value : '',
-            Bahan_Bakar: document.getElementById('paramBahanBakar') ? document.getElementById('paramBahanBakar').value : '',
-            Aset_Kendaraan: document.getElementById('paramAsetKendaraan') ? document.getElementById('paramAsetKendaraan').value : '',
-            Tabungan: document.getElementById('paramTabungan') ? document.getElementById('paramTabungan').value : '',
-            Emas_Perhiasan: document.getElementById('paramEmasPerhiasan') ? document.getElementById('paramEmasPerhiasan').value : '',
-            No_TPK: document.getElementById('noTimTPK') ? document.getElementById('noTimTPK').value : '',
-            Nama_Kader: document.getElementById('namaKader') ? document.getElementById('namaKader').value : '',
-            Nama_KK: document.getElementById('namaKK') ? document.getElementById('namaKK').value : '',
-            Nama_Sasaran: document.getElementById('namaSasaran') ? document.getElementById('namaSasaran').value : '',
-            Nik_Sasaran: nikSasaran,
-            No_Handphone: document.getElementById('noHp') ? document.getElementById('noHp').value : '',
-            Alamat: document.getElementById('alamatSasaran') ? document.getElementById('alamatSasaran').value : '',
-            Hb: document.getElementById('inputHb') ? document.getElementById('inputHb').value : 0,
-            Tb: document.getElementById('inputTb') ? document.getElementById('inputTb').value : 0,
-            Bb_Lahir: document.getElementById('inputBbLahir') ? document.getElementById('inputBbLahir').value : 0,
-            Lila: document.getElementById('inputLila') ? document.getElementById('inputLila').value : 0,
-            Anemia: document.getElementById('inputAnemia') ? document.getElementById('inputAnemia').value : '',
-            Tfu: document.getElementById('inputTfu') ? document.getElementById('inputTfu').value : 0,
-            Lingkar_Kepala: document.getElementById('inputLingkarKepala') ? document.getElementById('inputLingkarKepala').value : 0,
-            Usia_Hamil: document.getElementById('inputUsiaHamil') ? document.getElementById('inputUsiaHamil').value : 0,
-            Anak_Ke: document.getElementById('inputAnakKe') ? document.getElementById('inputAnakKe').value : 0,
-            Mbg_3b: document.getElementById('inputMbg3b') ? document.getElementById('inputMbg3b').value : '',
-            Pus_4t: document.getElementById('inputPus4t') ? document.getElementById('inputPus4t').value : '',
-            Alat_Kontrasepsi: document.getElementById('inputKontrasepsi') ? document.getElementById('inputKontrasepsi').value : '',
-            Intervensi: document.getElementById('inputIntervensi') ? document.getElementById('inputIntervensi').value : '',
-            Air_Minum: document.getElementById('inputAirMinum') ? document.getElementById('inputAirMinum').value : '',
-            Sumber_Intervensi_Air: document.getElementById('sumberAir') ? document.getElementById('sumberAir').value : '',
-            Sanitasi: document.getElementById('inputSanitasi') ? document.getElementById('inputSanitasi').value : '',
-            Sumber_Intervensi_Jamban: document.getElementById('sumberJamban') ? document.getElementById('sumberJamban').value : '',
-            Foto: finalProcessedImageBase64,
-            Lokasi_Gps: `${gpsLatitude}, ${gpsLongitude}`,
-            Status_Risiko: "TIDAK BERISIKO",
-            Alasan_Risiko: "Parameter Aman",
-            Status_Pendampingan: document.getElementById('statusPendampingan') ? document.getElementById('statusPendampingan').value : "Data KRS Baru",
-            Skor_S1: document.getElementById('skorS1') ? document.getElementById('skorS1').value : 0,
-            Skor_S2: document.getElementById('skorS2') ? document.getElementById('skorS2').value : 0,
-            Skor_S3: document.getElementById('skorS3') ? document.getElementById('skorS3').value : 0,
-            Skor_S4: document.getElementById('skorS4') ? document.getElementById('skorS4').value : 0,
-            Total_Skor_Mental: document.getElementById('totalSkorMental') ? document.getElementById('totalSkorMental').value : 0,
-            Status_Mental: document.getElementById('statusMental') ? document.getElementById('statusMental').value : ''
-        };
-
-        fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(dataObj)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'success' || data.result === 'success') {
-                alert('Data berhasil disimpan ke database!');
-                appData.unshift(dataObj);
-                localStorage.setItem('krs_data_store', JSON.stringify(appData));
-                renderKaderTable();
-                resetKaderForm();
-                muatDataRealtimeSilent();
-            } else {
-                alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
+    // Penanganan Submit Form Tunggal yang Bersih & Lengkap
+    const formEl = document.getElementById('formInputData');
+    if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nikSasaran = document.getElementById('nikSasaran').value;
+            if (!nikSasaran || nikSasaran.length !== 16) {
+                alert("NIK Sasaran wajib 16 digit angka.");
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan koneksi ke server Railway.');
+
+            const dataObj = {
+                id: Date.now(),
+                Timestamp: new Date().toISOString().split('T')[0],
+                Kecamatan: document.getElementById('kecamatan') ? document.getElementById('kecamatan').value : '',
+                Desa: document.getElementById('desa') ? document.getElementById('desa').value : '',
+                Jenis_Sasaran: document.getElementById('jenisSasaran') ? document.getElementById('jenisSasaran').value : '',
+                Desil: document.getElementById('desilKeluarga') ? document.getElementById('desilKeluarga').value : '1',
+                Pendidikan_KK: document.getElementById('paramPendidikanKK') ? document.getElementById('paramPendidikanKK').value : '',
+                Pekerjaan_KK: document.getElementById('paramPekerjaanKK') ? document.getElementById('paramPekerjaanKK').value : '',
+                Kepemilikan_Rumah: document.getElementById('paramKepemilikanRumah') ? document.getElementById('paramKepemilikanRumah').value : '',
+                Luas_Lantai: document.getElementById('paramLuasLantai') ? document.getElementById('paramLuasLantai').value : '',
+                Jenis_Dinding: document.getElementById('paramJenisDinding') ? document.getElementById('paramJenisDinding').value : '',
+                Jenis_Atap: document.getElementById('paramJenisAtap') ? document.getElementById('paramJenisAtap').value : '',
+                Jenis_Lantai: document.getElementById('paramJenisLantai') ? document.getElementById('paramJenisLantai').value : '',
+                Sumber_Listrik: document.getElementById('paramSumberListrik') ? document.getElementById('paramSumberListrik').value : '',
+                Bahan_Bakar: document.getElementById('paramBahanBakar') ? document.getElementById('paramBahanBakar').value : '',
+                Aset_Kendaraan: document.getElementById('paramAsetKendaraan') ? document.getElementById('paramAsetKendaraan').value : '',
+                Tabungan: document.getElementById('paramTabungan') ? document.getElementById('paramTabungan').value : '',
+                Emas_Perhiasan: document.getElementById('paramEmasPerhiasan') ? document.getElementById('paramEmasPerhiasan').value : '',
+                No_TPK: document.getElementById('noTimTPK') ? document.getElementById('noTimTPK').value : '',
+                Nama_Kader: document.getElementById('namaKader') ? document.getElementById('namaKader').value : '',
+                Nama_KK: document.getElementById('namaKK') ? document.getElementById('namaKK').value : '',
+                Nama_Sasaran: document.getElementById('namaSasaran') ? document.getElementById('namaSasaran').value : '',
+                Nik_Sasaran: nikSasaran,
+                No_Handphone: document.getElementById('noHp') ? document.getElementById('noHp').value : '',
+                Alamat: document.getElementById('alamatSasaran') ? document.getElementById('alamatSasaran').value : '',
+                Hb: document.getElementById('inputHb') ? document.getElementById('inputHb').value : 0,
+                Tb: document.getElementById('inputTb') ? document.getElementById('inputTb').value : 0,
+                Bb_Lahir: document.getElementById('inputBbLahir') ? document.getElementById('inputBbLahir').value : 0,
+                Lila: document.getElementById('inputLila') ? document.getElementById('inputLila').value : 0,
+                Anemia: document.getElementById('inputAnemia') ? document.getElementById('inputAnemia').value : '',
+                Tfu: document.getElementById('inputTfu') ? document.getElementById('inputTfu').value : 0,
+                Lingkar_Kepala: document.getElementById('inputLingkarKepala') ? document.getElementById('inputLingkarKepala').value : 0,
+                Usia_Hamil: document.getElementById('inputUsiaHamil') ? document.getElementById('inputUsiaHamil').value : 0,
+                Anak_Ke: document.getElementById('inputAnakKe') ? document.getElementById('inputAnakKe').value : 0,
+                Mbg_3b: document.getElementById('inputMbg3b') ? document.getElementById('inputMbg3b').value : '',
+                Pus_4t: document.getElementById('inputPus4t') ? document.getElementById('inputPus4t').value : '',
+                Alat_Kontrasepsi: document.getElementById('inputKontrasepsi') ? document.getElementById('inputKontrasepsi').value : '',
+                Intervensi: document.getElementById('inputIntervensi') ? document.getElementById('inputIntervensi').value : '',
+                Air_Minum: document.getElementById('inputAirMinum') ? document.getElementById('inputAirMinum').value : '',
+                Sumber_Intervensi_Air: document.getElementById('sumberAir') ? document.getElementById('sumberAir').value : '',
+                Sanitasi: document.getElementById('inputSanitasi') ? document.getElementById('inputSanitasi').value : '',
+                Sumber_Intervensi_Jamban: document.getElementById('sumberJamban') ? document.getElementById('sumberJamban').value : '',
+                Foto: finalProcessedImageBase64,
+                Lokasi_Gps: `${gpsLatitude}, ${gpsLongitude}`,
+                Status_Risiko: "TIDAK BERISIKO",
+                Alasan_Risiko: "Parameter Aman",
+                Status_Pendampingan: document.getElementById('statusPendampingan') ? document.getElementById('statusPendampingan').value : "Data KRS Baru",
+                Skor_S1: document.getElementById('skorS1') ? document.getElementById('skorS1').value : 0,
+                Skor_S2: document.getElementById('skorS2') ? document.getElementById('skorS2').value : 0,
+                Skor_S3: document.getElementById('skorS3') ? document.getElementById('skorS3').value : 0,
+                Skor_S4: document.getElementById('skorS4') ? document.getElementById('skorS4').value : 0,
+                Total_Skor_Mental: document.getElementById('totalSkorMental') ? document.getElementById('totalSkorMental').value : 0,
+                Status_Mental: document.getElementById('statusMental') ? document.getElementById('statusMental').value : ''
+            };
+
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(dataObj)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success' || data.result === 'success') {
+                    alert('Data berhasil disimpan ke database!');
+                    appData.unshift(dataObj);
+                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                    renderKaderTable();
+                    resetKaderForm();
+                    muatDataRealtimeSilent();
+                } else {
+                    alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi ke server Railway.');
+            });
         });
-    });
+    }
 
     function renderKaderTable() {
         const tbody = document.getElementById('kaderTableBody');
