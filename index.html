@@ -1475,29 +1475,30 @@
             };
 
             fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(dataObj)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success' || data.result === 'success') {
-                    alert('Data berhasil disimpan ke database!');
-                    appData.unshift(dataObj);
-                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
-                    renderKaderTable();
-                    resetKaderForm();
-                    muatDataRealtimeSilent();
-                } else {
-                    alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan koneksi ke server Railway.');
-            });
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify(dataObj)
+})
+.then(response => response.json())
+.then(data => {
+    // Perhatikan penggunaan 'data.result' karena PHP Anda mengembalikan kunci 'result'
+    if(data.result === 'success') {
+        alert('Data berhasil disimpan ke database!');
+        appData.unshift(dataObj);
+        localStorage.setItem('krs_data_store', JSON.stringify(appData));
+        renderKaderTable();
+        resetKaderForm();
+        muatDataRealtimeSilent();
+    } else {
+        alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('Terjadi kesalahan koneksi ke server Railway.');
+});
         });
     }
 
