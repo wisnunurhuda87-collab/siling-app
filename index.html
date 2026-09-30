@@ -1383,6 +1383,26 @@
         const formContainer = document.getElementById('formContainer');
         if (formContainer) formContainer.classList.add('hidden');
     }
+    document.getElementById('formInputData').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let formData = new FormData(this);
+
+    fetch('insert.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            alert('Data berhasil disimpan!');
+            location.reload(); // Refresh halaman untuk memperbarui tabel
+        } else {
+            alert('Gagal menyimpan data: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
 
     function handleKaderSubmit(e) {
         e.preventDefault();
