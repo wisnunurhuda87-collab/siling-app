@@ -1062,32 +1062,41 @@
     };
 
    window.onload = function() {
+    // 1. Wajib dipasang paling atas: Pulihkan sesi login agar tidak terlempar ke halaman login
+    let savedSession = localStorage.getItem('activeUserSession');
+    if (savedSession) {
+        currentUser = JSON.parse(savedSession);
+        
+        // Sembunyikan halaman login, langsung buka dashboard
+        const loginPage = document.getElementById('loginPage');
+        const navUserArea = document.getElementById('navUserArea');
+        const userBadge = document.getElementById('userBadge');
+        const kaderDash = document.getElementById('kaderDashboard');
+        const adminDash = document.getElementById('adminDashboard');
+
+        if (loginPage) loginPage.classList.add('hidden');
+        if (navUserArea) navUserArea.classList.remove('hidden');
+        if (userBadge) {
+            userBadge.innerText = currentUser.role.toUpperCase() + (currentUser.role === 'kader' ? ' - ' + localStorage.getItem('activeUsername') : '');
+        }
+
+        if (currentUser.role === 'kader') {
+            if (kaderDash) kaderDash.classList.remove('hidden');
+        } else {
+            if (adminDash) {
+                adminDash.classList.add('hidden');
+                adminDash.style.setProperty('display', 'block', 'important');
+                populateFilterTahunBulan();
+                renderAdminDashboard();
+            }
+        }
+    }
+
+    // 2. Fungsi pendukung lainnya
     initKecamatanDropdown();
     renderKaderTable();
     triggerKalkulasiDesilOtomatis();
-
     muatDataRealtimeSilent();
-
-    // Mencegah pull-to-refresh agar halaman tidak mereset sesi login
-    document.body.style.overscrollBehaviorY = 'none';
-
-    // Pencegahan sentuhan gestur tarik ke bawah secara spesifik
-    let touchStartY = 0;
-    window.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    window.addEventListener('touchmove', function(e) {
-        let touchY = e.touches[0].clientY;
-        // Jika ditarik ke bawah dari posisi paling atas halaman
-        if (window.scrollY === 0 && touchY > touchStartY) {
-            let activeSession = localStorage.getItem('activeUserSession');
-            if (activeSession) {
-                // Cegah perilaku default browser agar tidak terjadi refresh/reload
-                e.preventDefault(); 
-            }
-        }
-    }, { passive: false });
 
     const kecElement = document.getElementById('kecamatan');
     if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
