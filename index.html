@@ -1403,7 +1403,45 @@
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+const formEl = document.getElementById('formInputData');
+if (formEl) {
+    formEl.addEventListener('submit', function(e) {
+        e.preventDefault(); // Wajib untuk mencegah reload/pindah halaman otomatis
 
+        const nikSasaran = document.getElementById('nikSasaran').value;
+        if (!nikSasaran || nikSasaran.length !== 16) {
+            alert("NIK Sasaran wajib 16 digit angka.");
+            return;
+        }
+
+        // Kumpulkan data objek ...
+        let dataObj = { /* ... data form ... */ };
+
+        // Kirim ke Railway menggunakan fetch
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataObj)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success' || data.result === 'success') {
+                alert('Data berhasil disimpan ke database!');
+                appData.unshift(dataObj);
+                localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                renderKaderTable();
+                resetKaderForm(); // Sembunyikan form dan kembali ke tabel secara terkontrol
+                muatDataRealtimeSilent();
+            } else {
+                alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan koneksi ke server Railway.');
+        });
+    });
+}
     function resetKaderForm() {
         const formContainer = document.getElementById('formContainer');
         if (formContainer) formContainer.classList.add('hidden');
