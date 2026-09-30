@@ -1061,33 +1061,54 @@
         '360333_MEKARBARU': 'mekarbaru123'
     };
 
-    window.onload = function() {
-        initKecamatanDropdown();
-        renderKaderTable();
-        triggerKalkulasiDesilOtomatis();
+   window.onload = function() {
+    initKecamatanDropdown();
+    renderKaderTable();
+    triggerKalkulasiDesilOtomatis();
 
-        muatDataRealtimeSilent();
+    muatDataRealtimeSilent();
 
-        const kecElement = document.getElementById('kecamatan');
-        if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
+    // Mencegah pull-to-refresh agar halaman tidak mereset sesi login
+    document.body.style.overscrollBehaviorY = 'none';
 
-        const filterKecKaderElem = document.getElementById('filterKecamatanKader');
-        if (filterKecKaderElem) filterKecKaderElem.addEventListener('change', updateFilterDesaOptions);
+    // Pencegahan sentuhan gestur tarik ke bawah secara spesifik
+    let touchStartY = 0;
+    window.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
 
-        const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
-        if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
+    window.addEventListener('touchmove', function(e) {
+        let touchY = e.touches[0].clientY;
+        // Jika ditarik ke bawah dari posisi paling atas halaman
+        if (window.scrollY === 0 && touchY > touchStartY) {
+            let activeSession = localStorage.getItem('activeUserSession');
+            if (activeSession) {
+                // Cegah perilaku default browser agar tidak terjadi refresh/reload
+                e.preventDefault(); 
+            }
+        }
+    }, { passive: false });
 
-        const filterThnAdmin = document.getElementById('filterTahun');
-        if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
+    const kecElement = document.getElementById('kecamatan');
+    if (kecElement) kecElement.addEventListener('change', updateDesaDropdown);
 
-        const filterBlnAdmin = document.getElementById('filterBulan');
-        if (filterBlnAdmin) filterBlnAdmin.addEventListener('change', renderAdminDashboard);
+    const filterKecKaderElem = document.getElementById('filterKecamatanKader');
+    if (filterKecKaderElem) filterKecKaderElem.addEventListener('change', updateFilterDesaOptions);
 
-        const filterDesaAdminElem = document.getElementById('filterDesaAdmin');
-        if (filterDesaAdminElem) filterDesaAdminElem.addEventListener('change', renderAdminDashboard);
+    const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
+    if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
 
-        updateQueueUI();
-    };
+    const filterThnAdmin = document.getElementById('filterTahun');
+    if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
+
+    const filterBlnAdmin = document.getElementById('filterBulan');
+    if (filterBlnAdmin) filterBlnAdmin.addEventListener('change', renderAdminDashboard);
+
+    const filterDesaAdminElem = document.getElementById('filterDesaAdmin');
+    if (filterDesaAdminElem) filterDesaAdminElem.addEventListener('change', renderAdminDashboard);
+
+    updateQueueUI();
+};
 
     function initKecamatanDropdown() {
         const kecSelect = document.getElementById('kecamatan');
@@ -1460,7 +1481,7 @@
                 localStorage.setItem('krs_data_store', JSON.stringify(appData));
                 renderKaderTable();
                 resetKaderForm();
-                location.reload();
+                muatDataRealtimeSilent();
             } else {
                 alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
             }
