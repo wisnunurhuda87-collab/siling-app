@@ -989,8 +989,8 @@
 
     <!-- ================= JAVASCRIPT SISTEM ================= -->
     <script>
-    const APPS_SCRIPT_URL = "http://localhost/siling-api/insert.php";
-    const SCRIPT_URL = "http://localhost/siling-api/get_data.php";
+   const APPS_SCRIPT_URL = "https://siling-app-production.up.railway.app/insert.php";
+    const SCRIPT_URL = "https://siling-app-production.up.railway.app/get_data.php";
 
     const DATA_WILAYAH = {
         "Balaraja": ["Cangkudu", "Gembong", "Saga", "Sentul", "Sentul Jaya", "Sukamurni", "Talagasari", "Tobat", "Kelurahan Balaraja"],
@@ -1066,7 +1066,6 @@
         renderKaderTable();
         triggerKalkulasiDesilOtomatis();
 
-        // Tarik data awal dari server agar langsung siap
         muatDataRealtimeSilent();
 
         const kecElement = document.getElementById('kecamatan');
@@ -1078,7 +1077,6 @@
         const filterKecAdminElem = document.getElementById('filterKecamatanAdmin');
         if (filterKecAdminElem) filterKecAdminElem.addEventListener('change', updateAdminFilterDesa);
 
-        // Listener Filter Admin (Tahun, Bulan, Desa Admin)
         const filterThnAdmin = document.getElementById('filterTahun');
         if (filterThnAdmin) filterThnAdmin.addEventListener('change', renderAdminDashboard);
 
@@ -1153,7 +1151,6 @@
             desaSelect.classList.add("bg-slate-100", "disabled:cursor-not-allowed");
             desaSelect.classList.remove("bg-white");
         }
-        filterKaderTable();
     }
 
     function updateAdminFilterDesa() {
@@ -1299,7 +1296,6 @@
         if (kaderDash) kaderDash.classList.add('hidden');
         if (adminDash) adminDash.classList.add('hidden');
 
-        // Tarik data terbaru dari database SQL secara langsung saat login
         fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
@@ -1316,10 +1312,9 @@
                         renderKaderTable();
                     } else {
                         if (adminDash) {
-                            adminDash.classList.remove('hidden');
+                            adminDash.classList.add('hidden');
                             adminDash.style.setProperty('display', 'block', 'important');
                         }
-                        // Panggil populate dan render setelah appData terisi dari database
                         populateFilterTahunBulan();
                         renderAdminDashboard();
                     }
@@ -1331,7 +1326,7 @@
         fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
+                if (Array.isArray(data) && data.length > 0) {
                     appData = data;
                     localStorage.setItem('krs_data_store', JSON.stringify(appData));
                     renderKaderTable();
@@ -1383,31 +1378,12 @@
         const formContainer = document.getElementById('formContainer');
         if (formContainer) formContainer.classList.add('hidden');
     }
+
+    // Penanganan Submit Form Langsung ke Database Railway (JSON)
     document.getElementById('formInputData').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    let formData = new FormData(this);
-
-    fetch('insert.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'success') {
-            alert('Data berhasil disimpan!');
-            location.reload(); // Refresh halaman untuk memperbarui tabel
-        } else {
-            alert('Gagal menyimpan data: ' + data.message);
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-    function handleKaderSubmit(e) {
         e.preventDefault();
+        
         const nikSasaran = document.getElementById('nikSasaran').value;
-
         if (!nikSasaran || nikSasaran.length !== 16) {
             alert("NIK Sasaran wajib 16 digit angka.");
             return;
@@ -1469,34 +1445,31 @@
             Status_Mental: document.getElementById('statusMental') ? document.getElementById('statusMental').value : ''
         };
 
-        appData.unshift(dataObj);
-        localStorage.setItem('krs_data_store', JSON.stringify(appData));
-        
-        renderKaderTable();
-        resetKaderForm();
-        alert("Data berhasil disimpan secara lokal dan diperbarui!");
-
         fetch(APPS_SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify(dataObj)
-        }).catch(err => console.log("Background sync error:", err));
-    }
-
-    function muatDataRealtimeSilent() {
-        fetch(SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    appData = data;
-                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
-                    renderKaderTable();
-                    populateFilterTahunBulan();
-                    renderAdminDashboard();
-                }
-            })
-            .catch(err => console.log("Background fetch skipped."));
-    }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success' || data.result === 'success') {
+                alert('Data berhasil disimpan ke database!');
+                appData.unshift(dataObj);
+                localStorage.setItem('krs_data_store', JSON.stringify(appData));
+                renderKaderTable();
+                resetKaderForm();
+                location.reload();
+            } else {
+                alert('Gagal menyimpan data: ' + (data.message || 'Kesalahan server'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan koneksi ke server Railway.');
+        });
+    });
 
     function renderKaderTable() {
         const tbody = document.getElementById('kaderTableBody');
@@ -1584,10 +1557,7 @@
     }
 
     function renderAdminDashboard() {
-        if (!Array.isArray(appData) || appData.length === 0) {
-            console.log("appData masih kosong di dashboard admin.");
-            return;
-        }
+        if (!Array.isArray(appData) || appData.length === 0) return;
 
         const fTahun = document.getElementById('filterTahun') ? document.getElementById('filterTahun').value : '';
         const fBulan = document.getElementById('filterBulan') ? document.getElementById('filterBulan').value : '';
@@ -1595,7 +1565,6 @@
         const fDesa = document.getElementById('filterDesaAdmin') ? document.getElementById('filterDesaAdmin').value : '';
 
         const filtered = appData.filter(item => {
-            // Ambil tanggal dari berbagai kemungkinan nama properti (kecil/besar)
             let tgl = item.timestamp || item.Timestamp || item.tglInput || item.tanggal || '';
             let itemTahun = tgl.substring(0, 4);
             let itemBulan = tgl.substring(5, 7);
@@ -1612,42 +1581,30 @@
         });
 
         let totalKeluarga = filtered.length;
-
         let berisikoTotal = filtered.filter(i => {
             let statusResiko = i.status_risiko || i.Status_Risiko || i.statusResiko || '';
             return statusResiko.toUpperCase() === 'BERISIKO';
         }).length;
-
         let tidakBerisikoTotal = totalKeluarga - berisikoTotal;
 
-        // Update teks indikator ke elemen HTML Dashboard Admin
         if(document.getElementById('indJmlKeluarga')) document.getElementById('indJmlKeluarga').innerText = totalKeluarga.toLocaleString('id-ID');
         if(document.getElementById('indJmlKRS')) document.getElementById('indJmlKRS').innerText = totalKeluarga.toLocaleString('id-ID');
         if(document.getElementById('indJmlBeresiko')) document.getElementById('indJmlBeresiko').innerText = berisikoTotal.toLocaleString('id-ID');
         if(document.getElementById('indJmlTidakBeresiko')) document.getElementById('indJmlTidakBeresiko').innerText = tidakBerisikoTotal.toLocaleString('id-ID');
-
         if(document.getElementById('indJmlDidampingi')) document.getElementById('indJmlDidampingi').innerText = totalKeluarga.toLocaleString('id-ID');
         if(document.getElementById('indJmlBelumDidampingi')) document.getElementById('indJmlBelumDidampingi').innerText = "0";
+        if(document.getElementById('indPersenPendampingan')) document.getElementById('indPersenPendampingan').innerText = totalKeluarga > 0 ? "100%" : "0%";
 
-        let persentasePendampingan = totalKeluarga > 0 ? "100%" : "0%";
-        if(document.getElementById('indPersenPendampingan')) document.getElementById('indPersenPendampingan').innerText = persentasePendampingan;
-
-        // Hitung detail sasaran
-        let jmlDataBaru = filtered.filter(i => {
-            let statusP = i.status_pendampingan || i.Status_Pendampingan || '';
-            return statusP.toLowerCase().includes('baru');
-        }).length;
-
+        let jmlDataBaru = filtered.filter(i => (i.status_pendampingan || i.Status_Pendampingan || '').toLowerCase().includes('baru')).length;
         let jmlMasaPendampingan = filtered.filter(i => {
-            let statusP = i.status_pendampingan || i.Status_Pendampingan || '';
-            return statusP.toLowerCase().includes('lanjutan') || statusP.toLowerCase().includes('masa');
+            let s = (i.status_pendampingan || i.Status_Pendampingan || '').toLowerCase();
+            return s.includes('lanjutan') || s.includes('masa');
         }).length;
 
         let jmlCatin = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'catin').length;
         let jmlBumil = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'bumil').length;
         let jmlBupas = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'bupas').length;
         let jmlBaduta = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'baduta').length;
-        let jmlBalita = filtered.filter(i => (i.jenis_sasaran || i.Jenis_Sasaran || '').toLowerCase() === 'balita').length;
 
         if(document.getElementById('detDataBaru')) document.getElementById('detDataBaru').innerText = jmlDataBaru;
         if(document.getElementById('detMasaPendampingan')) document.getElementById('detMasaPendampingan').innerText = jmlMasaPendampingan;
@@ -1692,20 +1649,6 @@
 
         handleSasaranChange();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-   function muatDataRealtimeSilent() {
-        fetch(SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    appData = data;
-                    localStorage.setItem('krs_data_store', JSON.stringify(appData));
-                    renderKaderTable();
-                    populateFilterTahunBulan();
-                    renderAdminDashboard(); // <-- Pastikan baris ini ada di sini!
-                }
-            })
-            .catch(err => console.log("Background fetch skipped."));
     }
 </script>
 </body>
